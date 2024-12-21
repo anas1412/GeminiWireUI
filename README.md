@@ -1,6 +1,6 @@
 # 🎉 Wire Management Dashboard 🚀
 
-Welcome to the **Wire Management Dashboard**! This app is your go-to tool for managing wires, executing them, and all-around wire shenanigans. With a fresh and snappy interface, you'll be adding, editing, and executing wires like a pro. ⚡
+Welcome to the **Wire Management Dashboard** for [GeminiWire](https://github.com/anas1412/GeminiWire). This app is your go-to tool for managing wires, executing them, and all-around wire shenanigans. With a fresh and snappy interface, you'll be adding, editing, and executing wires like a pro. ⚡
 
 ## 🌟 Features
 
