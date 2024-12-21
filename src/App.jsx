@@ -70,7 +70,7 @@ const App = () => {
   };
 
   const sanitizeDescription = (description) => {
-    // Remove leading 'f"' and trailing '"'
+    // Remove leading "f'" and trailing "'"
     if (description.startsWith("f'") && description.endsWith("'")) {
       return description.slice(2, -1);
     }
@@ -189,7 +189,7 @@ const App = () => {
       // Create input fields based on the wire's input definitions
       const initialInputs = {};
       wire.inputs.forEach((input) => {
-        initialInputs[input.name] = "";
+        initialInputs[input] = "";
       });
 
       setExecuteData({
