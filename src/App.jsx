@@ -69,13 +69,28 @@ const App = () => {
     }));
   };
 
+  const sanitizeDescription = (description) => {
+    // Remove leading 'f"' and trailing '"'
+    if (description.startsWith("f'") && description.endsWith("'")) {
+      return description.slice(2, -1);
+    }
+    return description;
+  };
+
   const handleSubmit = async () => {
     try {
       const endpoint = selectedWire ? "/wire/update" : "/wire/add";
+      const inputNames = formData.inputs.map((input) => input.name);
+      const dataToSend = {
+        ...formData,
+        inputs: inputNames,
+        description: sanitizeDescription(formData.description),
+      };
+      console.log("Sending data:", dataToSend); // Log the data being sent
       const response = await fetch(`http://localhost:8000${endpoint}`, {
         method: selectedWire ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(dataToSend),
       });
 
       if (response.ok) {
@@ -84,8 +99,13 @@ const App = () => {
         );
         setIsAddModalOpen(false);
         fetchWires();
+      } else {
+        const errorData = await response.json();
+        console.error("Error response:", errorData);
+        showNotification("Error saving wire", "error");
       }
     } catch (error) {
+      console.error("Error:", error);
       showNotification("Error saving wire", "error");
     }
   };
@@ -137,7 +157,21 @@ const App = () => {
         `http://localhost:8000/wire/${functionName}`
       );
       const wire = await response.json();
-      setFormData(wire);
+
+      // Sanitize the description field
+      const sanitizedDescription = sanitizeDescription(wire.description);
+
+      // Initialize inputs array with the correct input names
+      const inputs = wire.inputs.map((inputName) => ({
+        name: inputName,
+        type: "string",
+      }));
+
+      setFormData({
+        ...wire,
+        description: sanitizedDescription,
+        inputs: inputs,
+      });
       setSelectedWire(functionName);
       setIsAddModalOpen(true);
     } catch (error) {
