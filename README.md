@@ -222,12 +222,8 @@ If something goes wrong, don’t worry! The UI will clearly display error messag
 
 - **Function Not Found**: “Function not found in function_definitions.py”
 - **API Failures**: “Error: API request failed”
-- **Input Validation**: “Invalid input format: <details>”
+- **Input Validation**: “Invalid input format:”
 
 ## 🎯 Get Started
 
 Clone the repo, set up the backend, and jump right into the **GeminiWire UI** to start creating and executing your AI-driven functions. Ready to unleash the full potential of AI? Let’s go! 🚀
-
-```
-
-```
