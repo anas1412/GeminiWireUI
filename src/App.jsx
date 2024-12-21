@@ -4,6 +4,7 @@ import WireModal from "./components/WireModal";
 import ExecuteModal from "./components/ExecuteModal";
 import LoadingSpinner from "./components/LoadingSpinner";
 import Notification from "./components/Notification";
+import API_BASE_URL from "./config"; // Import the base URL
 
 const App = () => {
   const [wires, setWires] = useState([]);
@@ -31,7 +32,7 @@ const App = () => {
   const fetchWires = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch("http://localhost:8000/wires");
+      const response = await fetch(`${API_BASE_URL}/wires`);
       const data = await response.json();
       setWires(data);
     } catch (error) {
@@ -70,7 +71,6 @@ const App = () => {
   };
 
   const sanitizeDescription = (description) => {
-    // Remove leading "f'" and trailing "'"
     if (description.startsWith("f'") && description.endsWith("'")) {
       return description.slice(2, -1);
     }
@@ -86,8 +86,7 @@ const App = () => {
         inputs: inputNames,
         description: sanitizeDescription(formData.description),
       };
-      console.log("Sending data:", dataToSend); // Log the data being sent
-      const response = await fetch(`http://localhost:8000${endpoint}`, {
+      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: selectedWire ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dataToSend),
@@ -101,11 +100,9 @@ const App = () => {
         fetchWires();
       } else {
         const errorData = await response.json();
-        console.error("Error response:", errorData);
         showNotification("Error saving wire", "error");
       }
     } catch (error) {
-      console.error("Error:", error);
       showNotification("Error saving wire", "error");
     }
   };
@@ -114,7 +111,7 @@ const App = () => {
     if (window.confirm("Are you sure you want to delete this wire?")) {
       try {
         const response = await fetch(
-          `http://localhost:8000/wire/delete/${functionName}`,
+          `${API_BASE_URL}/wire/delete/${functionName}`,
           {
             method: "DELETE",
           }
@@ -134,7 +131,7 @@ const App = () => {
     setIsExecuting(true);
     setExecutionResult(null);
     try {
-      const response = await fetch("http://localhost:8000/execute", {
+      const response = await fetch(`${API_BASE_URL}/execute`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(executeData),
@@ -153,15 +150,9 @@ const App = () => {
 
   const openEditModal = async (functionName) => {
     try {
-      const response = await fetch(
-        `http://localhost:8000/wire/${functionName}`
-      );
+      const response = await fetch(`${API_BASE_URL}/wire/${functionName}`);
       const wire = await response.json();
-
-      // Sanitize the description field
       const sanitizedDescription = sanitizeDescription(wire.description);
-
-      // Initialize inputs array with the correct input names
       const inputs = wire.inputs.map((inputName) => ({
         name: inputName,
         type: "string",
@@ -181,12 +172,8 @@ const App = () => {
 
   const openExecuteModal = async (functionName) => {
     try {
-      const response = await fetch(
-        `http://localhost:8000/wire/${functionName}`
-      );
+      const response = await fetch(`${API_BASE_URL}/wire/${functionName}`);
       const wire = await response.json();
-
-      // Create input fields based on the wire's input definitions
       const initialInputs = {};
       wire.inputs.forEach((input) => {
         initialInputs[input] = "";
@@ -196,13 +183,10 @@ const App = () => {
         function_name: wire.function_name,
         inputs: initialInputs,
       });
-
-      // Store wire details for display
       setSelectedWire({
         ...wire,
-        inputDefinitions: wire.inputs, // Store the original input definitions
+        inputDefinitions: wire.inputs,
       });
-
       setExecutionResult(null);
       setIsExecuteModalOpen(true);
     } catch (error) {
@@ -219,16 +203,18 @@ const App = () => {
           <h1 className="text-2xl font-bold text-gray-100">
             Wire Management Dashboard
           </h1>
-          <button
-            onClick={() => {
-              setFormData({ function_name: "", description: "", inputs: [] });
-              setSelectedWire(null);
-              setIsAddModalOpen(true);
-            }}
-            className="px-4 py-2 text-white transition-colors bg-blue-600 rounded hover:bg-blue-700"
-          >
-            Add Wire
-          </button>
+          <div className="space-x-2">
+            <button
+              onClick={() => {
+                setFormData({ function_name: "", description: "", inputs: [] });
+                setSelectedWire(null);
+                setIsAddModalOpen(true);
+              }}
+              className="px-4 py-2 text-white transition-colors bg-blue-600 rounded hover:bg-blue-700"
+            >
+              Add Wire
+            </button>
+          </div>
         </div>
 
         {isLoading ? (

@@ -11,6 +11,7 @@ const ExecuteModal = ({
 }) => {
   const [showJSON, setShowJSON] = useState(false);
   const [showJS, setShowJS] = useState(false);
+  const [notification, setNotification] = useState(null);
 
   const generateJSON = () => {
     const inputsCode = Object.keys(executeData.inputs)
@@ -49,12 +50,37 @@ fetch("http://localhost:8000/execute", {
     return jsCode;
   };
 
+  const handleExecuteClick = () => {
+    const hasEmptyField = Object.values(executeData.inputs).some(
+      (value) => value.trim() === ""
+    );
+    if (hasEmptyField) {
+      setNotification({
+        message: "All input fields must be filled out.",
+        type: "error",
+      });
+      return;
+    }
+    handleExecute();
+  };
+
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
       <div className="w-full max-w-md p-6 bg-gray-800 rounded-lg">
         <h2 className="mb-4 text-xl font-bold text-gray-100">
           Execute Wire: {executeData.function_name}
         </h2>
+        {notification && (
+          <div
+            className={`mb-4 p-4 rounded ${
+              notification.type === "error"
+                ? "bg-red-900 text-red-100"
+                : "bg-green-900 text-green-100"
+            }`}
+          >
+            {notification.message}
+          </div>
+        )}
         <div className="space-y-4">
           {Object.keys(executeData.inputs).map((inputName) => (
             <input
@@ -71,6 +97,7 @@ fetch("http://localhost:8000/execute", {
                   },
                 })
               }
+              maxLength={255} // Add max length limit
             />
           ))}
 
@@ -115,7 +142,7 @@ fetch("http://localhost:8000/execute", {
             Close
           </button>
           <button
-            onClick={handleExecute}
+            onClick={handleExecuteClick}
             disabled={isExecuting}
             className="flex items-center px-4 py-2 text-white transition-colors bg-blue-600 rounded hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed"
           >
