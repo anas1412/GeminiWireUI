@@ -66,7 +66,7 @@ fetch("http://localhost:8000/execute", {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="w-full max-w-md p-6 bg-gray-800 rounded-lg">
+      <div className="w-full max-w-md max-h-screen p-6 overflow-y-auto bg-gray-800 rounded-lg shadow-lg">
         <h2 className="mb-4 text-xl font-bold text-gray-100">
           Execute Wire: {executeData.function_name}
         </h2>
@@ -83,22 +83,24 @@ fetch("http://localhost:8000/execute", {
         )}
         <div className="space-y-4">
           {Object.keys(executeData.inputs).map((inputName) => (
-            <input
-              key={inputName}
-              className="w-full p-2 text-gray-100 bg-gray-700 border border-gray-600 rounded focus:outline-none focus:border-blue-500"
-              placeholder={inputName}
-              value={executeData.inputs[inputName]}
-              onChange={(e) =>
-                setExecuteData({
-                  ...executeData,
-                  inputs: {
-                    ...executeData.inputs,
-                    [inputName]: e.target.value,
-                  },
-                })
-              }
-              maxLength={255} // Add max length limit
-            />
+            <div key={inputName} className="flex flex-col">
+              <label className="mb-1 text-gray-300">{inputName}</label>
+              <input
+                className="w-full p-2 text-gray-100 bg-gray-700 border border-gray-600 rounded focus:outline-none focus:border-blue-500"
+                placeholder={`Enter ${inputName}`}
+                value={executeData.inputs[inputName]}
+                onChange={(e) =>
+                  setExecuteData({
+                    ...executeData,
+                    inputs: {
+                      ...executeData.inputs,
+                      [inputName]: e.target.value,
+                    },
+                  })
+                }
+                maxLength={255} // Add max length limit
+              />
+            </div>
           ))}
 
           {executionResult !== null && (
