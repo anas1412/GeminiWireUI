@@ -71,14 +71,14 @@ fetch("YOUR_API_BASE_URL/execute", {
           Execute Wire: {executeData.function_name}
         </h2>
         {notification && (
-          <div
-            className={`mb-4 p-4 rounded ${
-              notification.type === "error"
-                ? "bg-red-900 text-red-100"
-                : "bg-green-900 text-green-100"
-            }`}
-          >
-            {notification.message}
+          <div className={`toast ${notification.position || "toast-end"}`}>
+            <div
+              className={`alert ${
+                notification.type === "error" ? "alert-error" : "alert-success"
+              }`}
+            >
+              {notification.message}
+            </div>
           </div>
         )}
         <div className="space-y-4">

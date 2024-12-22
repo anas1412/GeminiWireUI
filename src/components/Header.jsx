@@ -12,8 +12,8 @@ const Header = ({ setIsAddModalOpen, setFormData, setSelectedWire }) => {
       <h1 className="text-2xl font-bold text-gray-100">
         Wire Management Dashboard
       </h1>
-      <button onClick={handleAddWire} className="btn btn-primary">
-        Add Wire
+      <button onClick={handleAddWire} className="rounded-full btn btn-primary">
+        New Wire
       </button>
     </div>
   );
