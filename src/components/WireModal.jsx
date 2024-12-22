@@ -14,17 +14,12 @@ const WireModal = ({
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
       <div className="w-full max-w-md p-6 bg-gray-800 rounded-lg">
         <h2 className="mb-4 text-xl font-bold text-gray-100">
-          {selectedWire ? "Edit Wire" : "Add New Wire"}
+          {selectedWire ? formData.function_name : "Add New Wire"}
         </h2>
+        <span className="block font-medium text-left text-gray-100">
+          Declarative function:
+        </span>
         <div className="space-y-4">
-          <input
-            className="w-full p-2 text-gray-100 bg-gray-700 border border-gray-600 rounded focus:outline-none focus:border-blue-500"
-            placeholder="function_name use '_' as separator"
-            value={formData.function_name}
-            onChange={(e) =>
-              setFormData({ ...formData, function_name: e.target.value })
-            }
-          />
           <input
             className="w-full p-2 text-gray-100 bg-gray-700 border border-gray-600 rounded focus:outline-none focus:border-blue-500"
             placeholder="Add a prompt and use {input} like this as an example."

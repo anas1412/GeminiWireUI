@@ -84,10 +84,12 @@ fetch("YOUR_API_BASE_URL/execute", {
         <div className="space-y-4">
           {Object.keys(executeData.inputs).map((inputName) => (
             <div key={inputName} className="flex flex-col">
-              <label className="mb-1 text-gray-300">{inputName}</label>
+              <label className="mb-1 text-left text-gray-300">
+                Enter {inputName}:
+              </label>
               <input
                 className="w-full p-2 text-gray-100 bg-gray-700 border border-gray-600 rounded focus:outline-none focus:border-blue-500"
-                placeholder={`Enter ${inputName}`}
+                placeholder={`${inputName}`}
                 value={executeData.inputs[inputName]}
                 onChange={(e) =>
                   setExecuteData({
