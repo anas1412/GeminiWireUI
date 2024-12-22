@@ -19,7 +19,7 @@ const WireModal = ({
         <div className="space-y-4">
           <input
             className="w-full p-2 text-gray-100 bg-gray-700 border border-gray-600 rounded focus:outline-none focus:border-blue-500"
-            placeholder="Function Name"
+            placeholder="function_name use '_' as separator"
             value={formData.function_name}
             onChange={(e) =>
               setFormData({ ...formData, function_name: e.target.value })
@@ -27,7 +27,7 @@ const WireModal = ({
           />
           <input
             className="w-full p-2 text-gray-100 bg-gray-700 border border-gray-600 rounded focus:outline-none focus:border-blue-500"
-            placeholder="Description"
+            placeholder="Add a prompt and use {input} like this as an example."
             value={formData.description}
             onChange={(e) =>
               setFormData({ ...formData, description: e.target.value })
@@ -35,12 +35,14 @@ const WireModal = ({
           />
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="font-medium text-gray-100">Inputs</span>
+              <span className="font-medium text-gray-100">
+                Add the inputs you used in the prompts below:
+              </span>
               <button
                 onClick={handleAddInput}
-                className="px-3 py-1 text-white transition-colors bg-blue-600 rounded hover:bg-blue-700"
+                className="btn btn-circle btn-sm btn-secondary"
               >
-                Add Input
+                +
               </button>
             </div>
             {formData.inputs.map((input, index) => (
@@ -55,9 +57,9 @@ const WireModal = ({
                 />
                 <button
                   onClick={() => handleRemoveInput(index)}
-                  className="px-3 py-1 text-white transition-colors bg-red-600 rounded hover:bg-red-700"
+                  className="mt-1 btn btn-circle btn-sm btn-error"
                 >
-                  Remove
+                  -
                 </button>
               </div>
             ))}
@@ -66,14 +68,11 @@ const WireModal = ({
         <div className="flex justify-end mt-6 space-x-2">
           <button
             onClick={() => setIsAddModalOpen(false)}
-            className="px-4 py-2 text-white transition-colors bg-gray-600 rounded hover:bg-gray-700"
+            className="rounded btn btn-secondary"
           >
             Cancel
           </button>
-          <button
-            onClick={handleSubmit}
-            className="px-4 py-2 text-white transition-colors bg-blue-600 rounded hover:bg-blue-700"
-          >
+          <button onClick={handleSubmit} className="rounded btn btn-primary">
             Save
           </button>
         </div>

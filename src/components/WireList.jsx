@@ -12,19 +12,19 @@ const WireList = ({ wires, openExecuteModal, openEditModal, handleDelete }) => {
           <div className="space-x-2">
             <button
               onClick={() => openExecuteModal(wire)}
-              className="px-3 py-1 text-white transition-colors bg-green-600 rounded hover:bg-green-700"
+              className="rounded btn btn-success"
             >
               Execute
             </button>
             <button
               onClick={() => openEditModal(wire)}
-              className="px-3 py-1 text-white transition-colors bg-yellow-600 rounded hover:bg-yellow-700"
+              className="rounded btn btn-warning"
             >
               Edit
             </button>
             <button
               onClick={() => handleDelete(wire)}
-              className="px-3 py-1 text-white transition-colors bg-red-600 rounded hover:bg-red-700"
+              className="rounded btn btn-error"
             >
               Delete
             </button>

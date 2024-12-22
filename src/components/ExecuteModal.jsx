@@ -38,7 +38,7 @@ const data = {
   }
 };
 
-fetch("http://localhost:8000/execute", {
+fetch("YOUR_API_BASE_URL/execute", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify(data),
@@ -98,13 +98,13 @@ fetch("http://localhost:8000/execute", {
                     },
                   })
                 }
-                maxLength={255} // Add max length limit
+                maxLength={255}
               />
             </div>
           ))}
 
           {executionResult !== null && (
-            <div className="p-4 mt-4 bg-gray-700 border border-gray-600 rounded">
+            <div className="p-4 mt-4 text-left bg-gray-700 border border-gray-600 rounded">
               <h3 className="mb-2 text-sm font-medium text-gray-300">
                 Execution Result:
               </h3>
@@ -115,7 +115,7 @@ fetch("http://localhost:8000/execute", {
           )}
 
           {showJSON && (
-            <div className="p-4 mt-4 bg-gray-700 border border-gray-600 rounded">
+            <div className="p-4 mt-4 text-left bg-gray-700 border border-gray-600 rounded">
               <h3 className="mb-2 text-sm font-medium text-gray-300">
                 Execution JSON:
               </h3>
@@ -126,7 +126,7 @@ fetch("http://localhost:8000/execute", {
           )}
 
           {showJS && (
-            <div className="p-4 mt-4 bg-gray-700 border border-gray-600 rounded">
+            <div className="p-4 mt-4 text-left bg-gray-700 border border-gray-600 rounded">
               <h3 className="mb-2 text-sm font-medium text-gray-300">
                 Execution JavaScript:
               </h3>
@@ -136,22 +136,21 @@ fetch("http://localhost:8000/execute", {
             </div>
           )}
         </div>
-        <div className="flex justify-end mt-6 space-x-2">
+        <div className="flex items-center justify-center mt-6 space-x-2">
           <button
             onClick={() => setIsExecuteModalOpen(false)}
-            className="px-4 py-2 text-white transition-colors bg-gray-600 rounded hover:bg-gray-700"
+            className="rounded btn btn-secondary"
           >
             Close
           </button>
           <button
             onClick={handleExecuteClick}
             disabled={isExecuting}
-            className="flex items-center px-4 py-2 text-white transition-colors bg-blue-600 rounded hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed"
+            className="rounded btn btn-success disabled:btn-disabled disabled:cursor-not-allowed"
           >
             {isExecuting ? (
               <>
                 <div className="w-4 h-4 mr-2 border-b-2 border-white rounded-full animate-spin"></div>
-                Executing...
               </>
             ) : (
               "Execute"
@@ -159,13 +158,13 @@ fetch("http://localhost:8000/execute", {
           </button>
           <button
             onClick={() => setShowJSON(!showJSON)}
-            className="px-4 py-2 text-white transition-colors bg-green-600 rounded hover:bg-green-700"
+            className="rounded btn btn-primary"
           >
             {showJSON ? "Hide JSON" : "Show JSON"}
           </button>
           <button
             onClick={() => setShowJS(!showJS)}
-            className="px-4 py-2 text-white transition-colors bg-yellow-600 rounded hover:bg-yellow-700"
+            className="rounded btn btn-warning"
           >
             {showJS ? "Hide JS" : "Show JS"}
           </button>
