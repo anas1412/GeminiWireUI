@@ -197,18 +197,28 @@ const App = () => {
   };
 
   return (
-    <div className="grid min-h-screen grid-cols-1 gap-4 p-8 text-gray-100 bg-gray-900 md:grid-cols-3">
-      <div className="md:col-span-3">
-        {notification && <Notification notification={notification} />}
-      </div>
-      <div className="md:col-span-3">
-        <Header
-          setIsAddModalOpen={setIsAddModalOpen}
-          setFormData={setFormData}
-          setSelectedWire={setSelectedWire}
-        />
-      </div>
-      <div className="p-6 bg-gray-800 rounded-lg shadow-xl md:col-span-3">
+    <div className="min-h-screen p-8 text-gray-100 bg-gray-900">
+      {notification && <Notification notification={notification} />}
+
+      <div className="p-6 bg-gray-800 rounded-lg shadow-xl">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-bold text-gray-100">
+            Wire Management Dashboard
+          </h1>
+          <div className="space-x-2">
+            <button
+              onClick={() => {
+                setFormData({ function_name: "", description: "", inputs: [] });
+                setSelectedWire(null);
+                setIsAddModalOpen(true);
+              }}
+              className="px-4 py-2 text-white transition-colors bg-blue-600 rounded hover:bg-blue-700"
+            >
+              Add Wire
+            </button>
+          </div>
+        </div>
+
         {isLoading ? (
           <LoadingSpinner />
         ) : (
@@ -220,6 +230,7 @@ const App = () => {
           />
         )}
       </div>
+
       {isAddModalOpen && (
         <WireModal
           formData={formData}
@@ -232,6 +243,7 @@ const App = () => {
           selectedWire={selectedWire}
         />
       )}
+
       {isExecuteModalOpen && (
         <ExecuteModal
           executeData={executeData}
