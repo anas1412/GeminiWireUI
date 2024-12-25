@@ -34,7 +34,7 @@ const App = () => {
   const fetchWires = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/wires`);
+      const response = await fetch(`${API_BASE_URL}/wires/details`);
       const data = await response.json();
       setWires(data);
     } catch (error) {
@@ -72,13 +72,6 @@ const App = () => {
     }));
   };
 
-  const sanitizeDescription = (description) => {
-    if (description.startsWith("f'") && description.endsWith("'")) {
-      return description.slice(2, -1);
-    }
-    return description;
-  };
-
   const handleSubmit = async () => {
     try {
       const endpoint = selectedWire ? "/wire/update" : "/wire/add";
@@ -86,7 +79,6 @@ const App = () => {
       const dataToSend = {
         ...formData,
         inputs: inputNames,
-        description: sanitizeDescription(formData.description),
       };
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: selectedWire ? "PUT" : "POST",
@@ -150,50 +142,33 @@ const App = () => {
     }
   };
 
-  const openEditModal = async (functionName) => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/wire/${functionName}`);
-      const wire = await response.json();
-      const sanitizedDescription = sanitizeDescription(wire.description);
-      const inputs = wire.inputs.map((inputName) => ({
-        name: inputName,
-        type: "string",
-      }));
+  const openEditModal = (wire) => {
+    const inputs = Object.keys(wire.inputs).map((inputName) => ({
+      name: inputName,
+      type: "string",
+    }));
 
-      setFormData({
-        ...wire,
-        description: sanitizedDescription,
-        inputs: inputs,
-      });
-      setSelectedWire(functionName);
-      setIsAddModalOpen(true);
-    } catch (error) {
-      showNotification("Error fetching wire details", "error");
-    }
+    setFormData({
+      ...wire,
+      inputs: inputs,
+    });
+    setSelectedWire(wire.function_name);
+    setIsAddModalOpen(true);
   };
 
-  const openExecuteModal = async (functionName) => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/wire/${functionName}`);
-      const wire = await response.json();
-      const initialInputs = {};
-      wire.inputs.forEach((input) => {
-        initialInputs[input] = "";
-      });
+  const openExecuteModal = (wire) => {
+    const initialInputs = {};
+    Object.keys(wire.inputs).forEach((inputName) => {
+      initialInputs[inputName] = "";
+    });
 
-      setExecuteData({
-        function_name: wire.function_name,
-        inputs: initialInputs,
-      });
-      setSelectedWire({
-        ...wire,
-        inputDefinitions: wire.inputs,
-      });
-      setExecutionResult(null);
-      setIsExecuteModalOpen(true);
-    } catch (error) {
-      showNotification("Error fetching wire details", "error");
-    }
+    setExecuteData({
+      function_name: wire.function_name,
+      inputs: initialInputs,
+    });
+    setSelectedWire(wire);
+    setExecutionResult(null);
+    setIsExecuteModalOpen(true);
   };
 
   return (
@@ -201,23 +176,11 @@ const App = () => {
       {notification && <Notification notification={notification} />}
 
       <div className="p-6 bg-gray-800 rounded-lg shadow-xl">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-gray-100">
-            Wire Management Dashboard
-          </h1>
-          <div className="space-x-2">
-            <button
-              onClick={() => {
-                setFormData({ function_name: "", description: "", inputs: [] });
-                setSelectedWire(null);
-                setIsAddModalOpen(true);
-              }}
-              className="px-4 py-2 text-white transition-colors bg-blue-600 rounded hover:bg-blue-700"
-            >
-              Add Wire
-            </button>
-          </div>
-        </div>
+        <Header
+          setIsAddModalOpen={setIsAddModalOpen}
+          setFormData={setFormData}
+          setSelectedWire={setSelectedWire}
+        />
 
         {isLoading ? (
           <LoadingSpinner />

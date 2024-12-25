@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const ExecuteModal = ({
   executeData,
@@ -12,6 +12,19 @@ const ExecuteModal = ({
   const [showJSON, setShowJSON] = useState(false);
   const [showJS, setShowJS] = useState(false);
   const [notification, setNotification] = useState(null);
+
+  useEffect(() => {
+    if (selectedWire) {
+      const initialInputs = {};
+      Object.keys(selectedWire.inputs).forEach((inputName) => {
+        initialInputs[inputName] = "";
+      });
+      setExecuteData({
+        function_name: selectedWire.function_name,
+        inputs: initialInputs,
+      });
+    }
+  }, [selectedWire, setExecuteData]);
 
   const generateJSON = () => {
     const inputsCode = Object.keys(executeData.inputs)
@@ -38,7 +51,7 @@ const data = {
   }
 };
 
-fetch("YOUR_API_BASE_URL/execute", {
+fetch("${API_BASE_URL}/execute", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify(data),
