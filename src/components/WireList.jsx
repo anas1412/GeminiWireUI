@@ -1,56 +1,44 @@
 import React from "react";
-import { FaPlay, FaEdit, FaTrash } from "react-icons/fa";
 
-const WireList = ({ wires, openExecuteModal, openEditModal, handleDelete }) => {
+const WireList = ({ wires, onEdit, onDelete, onExecute }) => {
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-      {Object.keys(wires).map((functionName) => {
-        const wire = wires[functionName];
-        return (
-          <div
-            key={functionName}
-            className="relative p-4 transition-colors bg-gray-800 border border-gray-700 rounded-lg shadow-md hover:bg-gray-700"
-          >
-            <div className="flex items-start justify-between">
-              <h2 className="mb-2 text-xl font-medium text-gray-100">
-                {functionName}
-              </h2>
-              <div className="space-x-2">
-                <button
-                  onClick={() => openExecuteModal(wire)}
-                  className="p-2 rounded-full btn btn-success"
-                >
-                  <FaPlay />
-                </button>
-                <button
-                  onClick={() => openEditModal(wire)}
-                  className="p-2 rounded-full btn btn-warning"
-                >
-                  <FaEdit />
-                </button>
-                <button
-                  onClick={() => handleDelete(functionName)}
-                  className="p-2 rounded-full btn btn-error"
-                >
-                  <FaTrash />
-                </button>
-              </div>
-            </div>
-            <p className="mb-4 text-gray-300">{wire.description}</p>
-            <div className="mt-2">
-              <h3 className="mb-2 font-medium text-gray-200">Inputs:</h3>
-              <ul className="text-gray-300 list-disc list-inside">
-                {Object.keys(wire.inputs).map((inputName) => (
-                  <li key={inputName} className="mb-1">
-                    {inputName}: {wire.inputs[inputName]}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        );
-      })}
-    </div>
+    <table className="min-w-full bg-white border border-gray-200">
+      <thead>
+        <tr className="bg-gray-100">
+          <th className="py-2 px-4 border-b">Wire ID</th>
+          <th className="py-2 px-4 border-b">Description</th>
+          <th className="py-2 px-4 border-b">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {wires.map((wire) => (
+          <tr key={wire.wire_id} className="hover:bg-gray-50">
+            <td className="py-2 px-4 border-b">{wire.wire_id}</td>
+            <td className="py-2 px-4 border-b">{wire.description}</td>
+            <td className="py-2 px-4 border-b">
+              <button
+                onClick={() => onEdit(wire.wire_id)}
+                className="bg-yellow-500 text-white px-2 py-1 rounded mr-2"
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => onDelete(wire.wire_id)}
+                className="bg-red-500 text-white px-2 py-1 rounded mr-2"
+              >
+                Delete
+              </button>
+              <button
+                onClick={() => onExecute(wire.wire_id)}
+                className="bg-green-500 text-white px-2 py-1 rounded"
+              >
+                Execute
+              </button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   );
 };
 
