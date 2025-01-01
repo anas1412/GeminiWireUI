@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaEdit, FaTrash, FaPlay } from "react-icons/fa"; // Import icons from react-icons
+import { FaEdit, FaTrash, FaPlay } from "react-icons/fa";
 import WireflowBuilder from "../components/WireflowBuilder";
 import LoadingSpinner from "../components/LoadingSpinner";
 import API_BASE_URL from "../config";
@@ -9,9 +9,8 @@ const WireflowsPage = () => {
   const [wireflows, setWireflows] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [editingWireflow, setEditingWireflow] = useState(null); // Track wireflow being edited
+  const [editingWireflow, setEditingWireflow] = useState(null);
 
-  // Fetch wires from the API
   const fetchWires = async () => {
     setIsLoading(true);
     setError(null);
@@ -28,7 +27,6 @@ const WireflowsPage = () => {
     }
   };
 
-  // Fetch wireflows from the API
   const fetchWireflows = async () => {
     setIsLoading(true);
     setError(null);
@@ -45,13 +43,11 @@ const WireflowsPage = () => {
     }
   };
 
-  // Load wires and wireflows when the component mounts
   useEffect(() => {
     fetchWires();
     fetchWireflows();
   }, []);
 
-  // Handle saving a wireflow (Create/Update)
   const handleSaveWireflow = async (workflow) => {
     try {
       const workflowId = editingWireflow
@@ -73,8 +69,8 @@ const WireflowsPage = () => {
         });
 
         if (!response.ok) throw new Error("Failed to save wireflow");
-        fetchWireflows(); // Refresh the list of wireflows
-        setEditingWireflow(null); // Reset editing state
+        fetchWireflows();
+        setEditingWireflow(null);
       }
     } catch (error) {
       console.error("Error saving wireflow:", error);
@@ -82,41 +78,35 @@ const WireflowsPage = () => {
     }
   };
 
-  // Handle deleting a wireflow
   const handleDeleteWireflow = async (workflowId) => {
     try {
       const response = await fetch(`${API_BASE_URL}/wireflows/${workflowId}`, {
         method: "DELETE",
       });
       if (!response.ok) throw new Error("Failed to delete wireflow");
-      fetchWireflows(); // Refresh the list of wireflows
+      fetchWireflows();
     } catch (error) {
       console.error("Error deleting wireflow:", error);
       setError("Failed to delete wireflow. Please try again.");
     }
   };
 
-  // Handle executing a wireflow
   const handleExecuteWireflow = (workflowId) => {
-    // Add logic to execute the wireflow
     alert(`Executing wireflow: ${workflowId}`);
   };
 
-  // Handle editing a wireflow
   const handleEditWireflow = (wireflow) => {
-    setEditingWireflow(wireflow); // Set the wireflow to edit
+    setEditingWireflow(wireflow);
   };
 
   return (
     <div className="flex flex-col min-h-screen p-4 md:p-6">
-      {/* Page Header */}
       <div className="flex flex-col items-center justify-between mb-6 md:flex-row">
         <h1 className="mb-4 text-2xl font-bold text-blue-800 md:mb-0">
           Wireflows
         </h1>
       </div>
 
-      {/* Loading Spinner and Message */}
       {isLoading && (
         <div className="flex items-center justify-center h-64">
           <LoadingSpinner />
@@ -124,7 +114,6 @@ const WireflowsPage = () => {
         </div>
       )}
 
-      {/* Error Message */}
       {error && (
         <div className="px-4 py-3 mb-4 text-red-700 bg-red-100 border border-red-400 rounded">
           <p>Error: {error}</p>
@@ -137,16 +126,14 @@ const WireflowsPage = () => {
         </div>
       )}
 
-      {/* Wireflow Builder */}
       <div className="mb-8">
         <WireflowBuilder
           wires={wires}
           onSave={handleSaveWireflow}
-          initialWorkflow={editingWireflow?.wires} // Pass the workflow being edited
+          initialWorkflow={editingWireflow?.wires}
         />
       </div>
 
-      {/* Saved Wireflows List */}
       {!isLoading && !error && (
         <div className="overflow-x-auto">
           <table className="min-w-full bg-white rounded-lg shadow-md">
