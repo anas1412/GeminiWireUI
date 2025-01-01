@@ -5,18 +5,22 @@ import { FaTimes } from "react-icons/fa";
 const WireflowBuilder = ({ wires, onSave, initialWorkflow }) => {
   const [workflow, setWorkflow] = useState(initialWorkflow || []);
 
+  // Handle drag-and-drop events
   const onDragEnd = (result) => {
     const { source, destination } = result;
 
     if (!destination) return;
 
+    // Add wire to workflow
     if (
       source.droppableId === "wires" &&
       destination.droppableId === "workflow"
     ) {
       const wire = wires.find((w) => w.wire_id === result.draggableId);
-      setWorkflow([...workflow, { ...wire, inputs: {}, output_key: "" }]);
-    } else if (
+      setWorkflow([...workflow, { ...wire, inputs: {} }]);
+    }
+    // Reorder wires in workflow
+    else if (
       source.droppableId === "workflow" &&
       destination.droppableId === "workflow"
     ) {
@@ -27,20 +31,16 @@ const WireflowBuilder = ({ wires, onSave, initialWorkflow }) => {
     }
   };
 
+  // Remove a wire from the workflow
   const removeWireFromWorkflow = (index) => {
     const newWorkflow = workflow.filter((_, i) => i !== index);
     setWorkflow(newWorkflow);
   };
 
-  const updateWireInputs = (index, inputs) => {
+  // Update the value of a specific input for a wire
+  const updateWireInput = (index, inputKey, value) => {
     const newWorkflow = [...workflow];
-    newWorkflow[index].inputs = inputs;
-    setWorkflow(newWorkflow);
-  };
-
-  const updateWireOutputKey = (index, outputKey) => {
-    const newWorkflow = [...workflow];
-    newWorkflow[index].output_key = outputKey;
+    newWorkflow[index].inputs[inputKey] = value;
     setWorkflow(newWorkflow);
   };
 
@@ -117,30 +117,25 @@ const WireflowBuilder = ({ wires, onSave, initialWorkflow }) => {
                             <label className="block text-sm text-gray-600">
                               Inputs:
                             </label>
-                            <input
-                              type="text"
-                              value={JSON.stringify(wire.inputs)}
-                              onChange={(e) =>
-                                updateWireInputs(
-                                  index,
-                                  JSON.parse(e.target.value)
-                                )
-                              }
-                              className="w-full p-1 border rounded"
-                            />
-                          </div>
-                          <div className="mt-2">
-                            <label className="block text-sm text-gray-600">
-                              Output Key:
-                            </label>
-                            <input
-                              type="text"
-                              value={wire.output_key}
-                              onChange={(e) =>
-                                updateWireOutputKey(index, e.target.value)
-                              }
-                              className="w-full p-1 border rounded"
-                            />
+                            {Object.keys(wire.inputs || {}).map((inputKey) => (
+                              <div key={inputKey} className="mt-1">
+                                <label className="block text-sm text-gray-600">
+                                  {inputKey}:
+                                </label>
+                                <input
+                                  type="text"
+                                  value={wire.inputs[inputKey]}
+                                  onChange={(e) =>
+                                    updateWireInput(
+                                      index,
+                                      inputKey,
+                                      e.target.value
+                                    )
+                                  }
+                                  className="w-full p-1 border rounded"
+                                />
+                              </div>
+                            ))}
                           </div>
                         </div>
                         <button
