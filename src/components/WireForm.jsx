@@ -8,19 +8,10 @@ const WireForm = ({ wire, onSubmit, onClose }) => {
     inputs: {},
     output_key: "",
   });
-  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (wire) {
       setFormData(wire);
-    } else {
-      setFormData({
-        wire_id: "",
-        description: "",
-        prompt: "",
-        inputs: {},
-        output_key: "",
-      });
     }
   }, [wire]);
 
@@ -29,37 +20,9 @@ const WireForm = ({ wire, onSubmit, onClose }) => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleInputValueChange = (key, value) => {
-    setFormData({
-      ...formData,
-      inputs: { ...formData.inputs, [key]: value },
-    });
-  };
-
-  const handleAddInput = () => {
-    const newKey = `input_${Object.keys(formData.inputs).length + 1}`;
-    setFormData({
-      ...formData,
-      inputs: { ...formData.inputs, [newKey]: "" },
-    });
-  };
-
-  const handleRemoveInput = (key) => {
-    const newInputs = { ...formData.inputs };
-    delete newInputs[key];
-    setFormData({ ...formData, inputs: newInputs });
-  };
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    try {
-      await onSubmit(formData);
-    } catch (error) {
-      console.error("Error saving wire:", error);
-    } finally {
-      setIsLoading(false);
-    }
+    onSubmit(formData);
   };
 
   return (
@@ -109,45 +72,6 @@ const WireForm = ({ wire, onSubmit, onClose }) => {
         </div>
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700">
-            Inputs
-          </label>
-          <div className="space-y-2">
-            {Object.entries(formData.inputs).map(([key, value]) => (
-              <div key={key} className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="Input Key"
-                  value={key}
-                  readOnly
-                  className="w-1/2 px-3 py-2 border border-gray-300 rounded-md shadow-sm"
-                />
-                <input
-                  type="text"
-                  placeholder="Input Value"
-                  value={value}
-                  onChange={(e) => handleInputValueChange(key, e.target.value)}
-                  className="w-1/2 px-3 py-2 border border-gray-300 rounded-md shadow-sm"
-                />
-                <button
-                  type="button"
-                  onClick={() => handleRemoveInput(key)}
-                  className="px-3 py-1 text-white bg-red-500 rounded"
-                >
-                  Remove
-                </button>
-              </div>
-            ))}
-          </div>
-          <button
-            type="button"
-            onClick={handleAddInput}
-            className="px-3 py-1 mt-2 text-white bg-green-500 rounded"
-          >
-            Add Input
-          </button>
-        </div>
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">
             Output Key
           </label>
           <input
@@ -162,15 +86,13 @@ const WireForm = ({ wire, onSubmit, onClose }) => {
         <button
           type="submit"
           className="w-full px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600"
-          disabled={isLoading}
         >
-          {isLoading ? "Saving..." : "Save"}
+          Save
         </button>
       </form>
       <button
         onClick={onClose}
         className="w-full px-4 py-2 mt-4 text-white bg-gray-500 rounded-md hover:bg-gray-600"
-        disabled={isLoading}
       >
         Close
       </button>
