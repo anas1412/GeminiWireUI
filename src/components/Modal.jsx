@@ -1,4 +1,5 @@
 import React from "react";
+import LoadingSpinner from "./LoadingSpinner"; // Ensure this import is correct
 
 const Modal = ({ isOpen, onClose, children, isLoading }) => {
   if (!isOpen) return null;
