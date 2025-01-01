@@ -9,6 +9,7 @@ const WireflowsPage = () => {
   const [wireflows, setWireflows] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [editingWireflow, setEditingWireflow] = useState(null); // Track wireflow being edited
 
   // Fetch wires from the API
   const fetchWires = async () => {
@@ -50,21 +51,30 @@ const WireflowsPage = () => {
     fetchWireflows();
   }, []);
 
-  // Handle saving a wireflow
+  // Handle saving a wireflow (Create/Update)
   const handleSaveWireflow = async (workflow) => {
     try {
-      const workflowId = prompt("Enter a unique ID for this wireflow:");
+      const workflowId = editingWireflow
+        ? editingWireflow.workflow_id
+        : prompt("Enter a unique ID for this wireflow:");
       if (workflowId) {
-        const response = await fetch(`${API_BASE_URL}/wireflows/`, {
-          method: "POST",
+        const method = editingWireflow ? "PUT" : "POST";
+        const url = editingWireflow
+          ? `${API_BASE_URL}/wireflows/${workflowId}`
+          : `${API_BASE_URL}/wireflows/`;
+
+        const response = await fetch(url, {
+          method,
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             workflow_id: workflowId,
             wires: workflow,
           }),
         });
+
         if (!response.ok) throw new Error("Failed to save wireflow");
         fetchWireflows(); // Refresh the list of wireflows
+        setEditingWireflow(null); // Reset editing state
       }
     } catch (error) {
       console.error("Error saving wireflow:", error);
@@ -92,18 +102,23 @@ const WireflowsPage = () => {
     alert(`Executing wireflow: ${workflowId}`);
   };
 
+  // Handle editing a wireflow
+  const handleEditWireflow = (wireflow) => {
+    setEditingWireflow(wireflow); // Set the wireflow to edit
+  };
+
   return (
-    <div className="p-4 md:p-6 min-h-screen flex flex-col">
+    <div className="flex flex-col min-h-screen p-4 md:p-6">
       {/* Page Header */}
-      <div className="flex flex-col md:flex-row justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-blue-800 mb-4 md:mb-0">
+      <div className="flex flex-col items-center justify-between mb-6 md:flex-row">
+        <h1 className="mb-4 text-2xl font-bold text-blue-800 md:mb-0">
           Wireflows
         </h1>
       </div>
 
       {/* Loading Spinner and Message */}
       {isLoading && (
-        <div className="flex justify-center items-center h-64">
+        <div className="flex items-center justify-center h-64">
           <LoadingSpinner />
           <p className="ml-2 text-gray-700">Loading wireflows...</p>
         </div>
@@ -111,11 +126,11 @@ const WireflowsPage = () => {
 
       {/* Error Message */}
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        <div className="px-4 py-3 mb-4 text-red-700 bg-red-100 border border-red-400 rounded">
           <p>Error: {error}</p>
           <button
             onClick={fetchWireflows}
-            className="mt-2 bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition duration-300"
+            className="px-3 py-1 mt-2 text-white transition duration-300 bg-red-600 rounded hover:bg-red-700"
           >
             Retry
           </button>
@@ -124,7 +139,11 @@ const WireflowsPage = () => {
 
       {/* Wireflow Builder */}
       <div className="mb-8">
-        <WireflowBuilder wires={wires} onSave={handleSaveWireflow} />
+        <WireflowBuilder
+          wires={wires}
+          onSave={handleSaveWireflow}
+          initialWorkflow={editingWireflow?.wires} // Pass the workflow being edited
+        />
       </div>
 
       {/* Saved Wireflows List */}
@@ -154,13 +173,13 @@ const WireflowsPage = () => {
                         onClick={() =>
                           handleExecuteWireflow(wireflow.workflow_id)
                         }
-                        className="text-green-600 hover:text-green-800 p-1 rounded-full hover:bg-green-50 transition-colors duration-300"
+                        className="p-1 text-green-600 transition-colors duration-300 rounded-full hover:text-green-800 hover:bg-green-50"
                       >
                         <FaPlay className="w-5 h-5" />
                       </button>
                       <button
-                        onClick={() => alert("Edit functionality coming soon!")}
-                        className="text-yellow-600 hover:text-yellow-800 p-1 rounded-full hover:bg-yellow-50 transition-colors duration-300"
+                        onClick={() => handleEditWireflow(wireflow)}
+                        className="p-1 text-yellow-600 transition-colors duration-300 rounded-full hover:text-yellow-800 hover:bg-yellow-50"
                       >
                         <FaEdit className="w-5 h-5" />
                       </button>
@@ -168,7 +187,7 @@ const WireflowsPage = () => {
                         onClick={() =>
                           handleDeleteWireflow(wireflow.workflow_id)
                         }
-                        className="text-red-600 hover:text-red-800 p-1 rounded-full hover:bg-red-50 transition-colors duration-300"
+                        className="p-1 text-red-600 transition-colors duration-300 rounded-full hover:text-red-800 hover:bg-red-50"
                       >
                         <FaTrash className="w-5 h-5" />
                       </button>
@@ -180,6 +199,17 @@ const WireflowsPage = () => {
           </table>
         </div>
       )}
+
+      {/* Footer */}
+      <footer className="py-4 mt-auto text-white bg-blue-600">
+        <div className="container mx-auto text-center">
+          <p className="text-sm">
+            © {new Date().getFullYear()} GeminiWire. All rights reserved. |
+            Powered by Google's Gemini AI
+          </p>
+          <p className="mt-1 text-xs">Free to use, forever.</p>
+        </div>
+      </footer>
     </div>
   );
 };

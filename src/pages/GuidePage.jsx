@@ -4,19 +4,19 @@ import { Link } from "react-router-dom";
 
 const GuidePage = () => {
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-4xl font-bold text-blue-800 mb-8">
+    <div className="max-w-4xl p-6 mx-auto">
+      <h1 className="mb-8 text-4xl font-bold text-blue-800">
         GeminiWire Guides
       </h1>
 
       {/* Wires Guide */}
-      <div className="bg-white p-8 rounded-lg shadow-lg mb-8">
-        <h2 className="text-3xl font-bold text-blue-700 mb-6">Wires Guide</h2>
-        <p className="text-gray-700 mb-6">
+      <div className="p-8 mb-8 bg-white rounded-lg shadow-lg">
+        <h2 className="mb-6 text-3xl font-bold text-blue-700">Wires Guide</h2>
+        <p className="mb-6 text-gray-700">
           Wires are the building blocks of GeminiWire. They allow you to execute
           specific tasks or workflows. Here's how to use them:
         </p>
-        <ol className="list-decimal list-inside space-y-4">
+        <ol className="space-y-4 list-decimal list-inside">
           <li>
             Go to the{" "}
             <Link to="/wires" className="text-blue-500 hover:underline">
@@ -29,7 +29,7 @@ const GuidePage = () => {
           </li>
           <li>
             Fill in the wire details:
-            <ul className="list-disc list-inside ml-6 mt-2">
+            <ul className="mt-2 ml-6 list-disc list-inside">
               <li>
                 <strong>Wire ID</strong>: A unique identifier for the wire.
               </li>
@@ -61,8 +61,8 @@ const GuidePage = () => {
             Provide the required inputs (if any) and view the execution result.
           </li>
         </ol>
-        <div className="mt-6 bg-blue-50 p-4 rounded-lg">
-          <p className="text-blue-700 font-semibold">Example:</p>
+        <div className="p-4 mt-6 rounded-lg bg-blue-50">
+          <p className="font-semibold text-blue-700">Example:</p>
           <p>
             <strong>Prompt:</strong> Generate a summary of the latest sprint
             progress for the provided project: <code>input_1</code>
@@ -79,16 +79,16 @@ const GuidePage = () => {
       </div>
 
       {/* Wireflows Guide */}
-      <div className="bg-white p-8 rounded-lg shadow-lg">
-        <h2 className="text-3xl font-bold text-blue-700 mb-6">
+      <div className="p-8 bg-white rounded-lg shadow-lg">
+        <h2 className="mb-6 text-3xl font-bold text-blue-700">
           Wireflows Guide
         </h2>
-        <p className="text-gray-700 mb-6">
+        <p className="mb-6 text-gray-700">
           Wireflows allow you to combine multiple wires into a single workflow.
           This is ideal for automating complex tasks. Here's how to create and
           use them:
         </p>
-        <ol className="list-decimal list-inside space-y-4">
+        <ol className="space-y-4 list-decimal list-inside">
           <li>
             Go to the{" "}
             <Link to="/wireflows" className="text-blue-500 hover:underline">
@@ -116,12 +116,12 @@ const GuidePage = () => {
             Provide the required inputs (if any) and view the execution result.
           </li>
         </ol>
-        <div className="mt-6 bg-blue-50 p-4 rounded-lg">
-          <p className="text-blue-700 font-semibold">Example:</p>
+        <div className="p-4 mt-6 rounded-lg bg-blue-50">
+          <p className="font-semibold text-blue-700">Example:</p>
           <p>
             <strong>Scenario:</strong> Automate a bug reporting workflow.
           </p>
-          <ul className="list-disc list-inside ml-6 mt-2">
+          <ul className="mt-2 ml-6 list-disc list-inside">
             <li>
               <strong>Wire 1:</strong> Collect bug details from a form.
             </li>
@@ -144,23 +144,23 @@ const GuidePage = () => {
 
       {/* Call to Action */}
       <div className="mt-12 text-center">
-        <h2 className="text-3xl font-bold text-blue-800 mb-6">
+        <h2 className="mb-6 text-3xl font-bold text-blue-800">
           Ready to Get Started?
         </h2>
-        <p className="text-gray-700 mb-8">
+        <p className="mb-8 text-gray-700">
           Explore the power of GeminiWire and start automating your workflows
           today.
         </p>
         <div className="space-x-4">
           <Link
             to="/wires"
-            className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 text-lg"
+            className="px-8 py-3 text-lg text-white bg-blue-600 rounded-lg hover:bg-blue-700 sm:text-base"
           >
             Create a Wire
           </Link>
           <Link
             to="/wireflows"
-            className="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 text-lg"
+            className="px-8 py-3 text-lg text-white bg-green-600 rounded-lg hover:bg-green-700 sm:text-base"
           >
             Build a Wireflow
           </Link>
