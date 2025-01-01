@@ -15,7 +15,12 @@ const WireflowBuilder = ({ wires, onSave, initialWorkflow }) => {
       destination.droppableId === "workflow"
     ) {
       const wire = wires.find((w) => w.wire_id === result.draggableId);
-      setWorkflow([...workflow, { ...wire, inputs: {} }]);
+      // Initialize inputs with keys from the wire's schema
+      const inputs = Object.keys(wire.inputs || {}).reduce((acc, key) => {
+        acc[key] = ""; // Initialize each input with an empty string
+        return acc;
+      }, {});
+      setWorkflow([...workflow, { ...wire, inputs }]);
     } else if (
       source.droppableId === "workflow" &&
       destination.droppableId === "workflow"
@@ -130,6 +135,14 @@ const WireflowBuilder = ({ wires, onSave, initialWorkflow }) => {
                                 />
                               </div>
                             ))}
+                          </div>
+                          <div className="mt-2">
+                            <label className="block text-sm text-gray-600">
+                              Output Key:
+                            </label>
+                            <p className="text-sm text-gray-800">
+                              {wire.output_key}
+                            </p>
                           </div>
                         </div>
                         <button
