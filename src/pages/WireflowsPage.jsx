@@ -70,7 +70,6 @@ const WireflowsPage = () => {
           wires: workflow.map((wire) => ({
             wire_id: wire.wire_id,
             inputs: wire.inputs,
-            output_key: wire.output_key,
           })),
         };
 
