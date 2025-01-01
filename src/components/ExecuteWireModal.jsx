@@ -5,6 +5,7 @@ const ExecuteWireModal = ({ wire, onExecute, onClose }) => {
   const [inputs, setInputs] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
 
   const handleInputChange = (key, value) => {
     setInputs({ ...inputs, [key]: value });
@@ -13,11 +14,13 @@ const ExecuteWireModal = ({ wire, onExecute, onClose }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);
     try {
       const executionResult = await onExecute(inputs);
       setResult(executionResult);
     } catch (error) {
       console.error("Error executing wire:", error);
+      setError(error.message || "An error occurred during execution.");
     } finally {
       setIsLoading(false);
     }
@@ -27,9 +30,13 @@ const ExecuteWireModal = ({ wire, onExecute, onClose }) => {
     <>
       <h2 className="mb-4 text-2xl font-bold">Execute Wire: {wire?.wire_id}</h2>
       {isLoading && <LoadingSpinner />}
-      {result ? (
+      {error ? (
+        <div className="px-4 py-3 mb-4 text-red-700 bg-red-100 border border-red-400 rounded">
+          <p>Error: {error}</p>
+        </div>
+      ) : result ? (
         <div className="p-4 overflow-y-auto bg-gray-100 rounded-lg max-h-40">
-          <pre>{JSON.stringify(result, null, 2)}</pre>
+          <pre>{result.output}</pre>
         </div>
       ) : (
         <form onSubmit={handleSubmit}>
