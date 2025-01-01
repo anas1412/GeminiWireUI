@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { FaTimes } from "react-icons/fa"; // Import the "X" icon
 
 const WireflowBuilder = ({ wires, onSave, initialWorkflow }) => {
   const [workflow, setWorkflow] = useState(initialWorkflow || []);
@@ -102,9 +103,9 @@ const WireflowBuilder = ({ wires, onSave, initialWorkflow }) => {
                         </div>
                         <button
                           onClick={() => removeWireFromWorkflow(index)}
-                          className="text-red-600 hover:text-red-800"
+                          className="p-1 text-red-600 transition-colors duration-300 rounded-full hover:text-red-800 hover:bg-red-50"
                         >
-                          Remove
+                          <FaTimes className="w-5 h-5" /> {/* Red "X" icon */}
                         </button>
                       </li>
                     )}
