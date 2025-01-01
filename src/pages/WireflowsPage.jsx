@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { FaEdit, FaTrash, FaPlay } from "react-icons/fa";
+import { FaEdit, FaTrash, FaPlay, FaPlus } from "react-icons/fa";
 import WireflowBuilder from "../components/WireflowBuilder";
 import LoadingSpinner from "../components/LoadingSpinner";
+import Modal from "../components/Modal"; // Import the Modal component
 import API_BASE_URL from "../config";
 
 const WireflowsPage = () => {
@@ -10,6 +11,7 @@ const WireflowsPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [editingWireflow, setEditingWireflow] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false); // State for modal visibility
 
   // Fetch available wires
   const fetchWires = async () => {
@@ -85,6 +87,7 @@ const WireflowsPage = () => {
         if (!response.ok) throw new Error("Failed to save wireflow");
         fetchWireflows(); // Refresh the list of wireflows
         setEditingWireflow(null); // Reset editing state
+        setIsModalOpen(false); // Close the modal
       }
     } catch (error) {
       console.error("Error saving wireflow:", error);
@@ -113,7 +116,7 @@ const WireflowsPage = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          wireflow_id: wireflow_id, // Ensure wireflow_id is included
+          wireflow_id: wireflow_id,
           inputs: {}, // Add inputs if needed
         }),
       });
@@ -129,9 +132,16 @@ const WireflowsPage = () => {
     }
   };
 
-  // Set the wireflow to be edited
-  const handleEditWireflow = (wireflow) => {
+  // Open modal for editing or adding a wireflow
+  const openModal = (wireflow = null) => {
     setEditingWireflow(wireflow);
+    setIsModalOpen(true);
+  };
+
+  // Close modal
+  const closeModal = () => {
+    setEditingWireflow(null);
+    setIsModalOpen(false);
   };
 
   return (
@@ -140,6 +150,13 @@ const WireflowsPage = () => {
         <h1 className="mb-4 text-2xl font-bold text-blue-800 md:mb-0">
           Wireflows
         </h1>
+        <button
+          onClick={() => openModal()} // Open modal for adding a new wireflow
+          className="flex items-center px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600"
+        >
+          <FaPlus className="mr-2" />
+          Add Wireflow
+        </button>
       </div>
 
       {isLoading && (
@@ -161,13 +178,14 @@ const WireflowsPage = () => {
         </div>
       )}
 
-      <div className="mb-8">
+      {/* Modal for adding/editing wireflows */}
+      <Modal isOpen={isModalOpen} onClose={closeModal}>
         <WireflowBuilder
           wires={wires}
           onSave={handleSaveWireflow}
           initialWireflow={editingWireflow?.wires}
         />
-      </div>
+      </Modal>
 
       {!isLoading && !error && (
         <div className="overflow-x-auto">
@@ -200,7 +218,7 @@ const WireflowsPage = () => {
                         <FaPlay className="w-5 h-5" />
                       </button>
                       <button
-                        onClick={() => handleEditWireflow(wireflow)}
+                        onClick={() => openModal(wireflow)} // Open modal for editing
                         className="p-1 text-yellow-600 transition-colors duration-300 rounded-full hover:text-yellow-800 hover:bg-yellow-50"
                       >
                         <FaEdit className="w-5 h-5" />
