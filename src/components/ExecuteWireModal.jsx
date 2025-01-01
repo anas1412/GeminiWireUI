@@ -65,12 +65,6 @@ const ExecuteWireModal = ({ wire, onExecute, onClose }) => {
           </button>
         </form>
       )}
-      <button
-        onClick={onClose}
-        className="w-full px-4 py-2 mt-4 text-white bg-gray-500 rounded-md hover:bg-gray-600"
-      >
-        Close
-      </button>
     </>
   );
 };
