@@ -34,7 +34,7 @@ const ExecuteWireModal = ({ wire, onExecute, onClose }) => {
       ) : (
         <form onSubmit={handleSubmit}>
           {wire?.inputs &&
-            Object.entries(wire.inputs).map(([key, description]) => (
+            Object.entries(wire.inputs).map(([key, value]) => (
               <div key={key} className="mb-4">
                 <label className="block text-sm font-medium text-gray-700">
                   {key}
@@ -44,7 +44,7 @@ const ExecuteWireModal = ({ wire, onExecute, onClose }) => {
                   value={inputs[key] || ""}
                   onChange={(e) => handleInputChange(key, e.target.value)}
                   className="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm"
-                  placeholder={description}
+                  placeholder={value}
                   required
                 />
               </div>

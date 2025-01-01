@@ -11,7 +11,9 @@ const WiresPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalContent, setModalContent] = useState(null);
+  const [isExecuteModalOpen, setIsExecuteModalOpen] = useState(false);
+  const [selectedWire, setSelectedWire] = useState(null);
+  const [wireToExecute, setWireToExecute] = useState(null);
 
   const fetchWires = async () => {
     setIsLoading(true);
@@ -34,25 +36,14 @@ const WiresPage = () => {
   }, []);
 
   const handleCreateWire = () => {
-    setModalContent(
-      <WireForm
-        onSubmit={handleSaveWire}
-        onClose={() => setIsModalOpen(false)}
-      />
-    );
+    setSelectedWire(null);
     setIsModalOpen(true);
   };
 
   const handleEditWire = (wireId) => {
     const wire = wires.find((w) => w.wire_id === wireId);
     if (wire) {
-      setModalContent(
-        <WireForm
-          wire={wire}
-          onSubmit={handleSaveWire}
-          onClose={() => setIsModalOpen(false)}
-        />
-      );
+      setSelectedWire(wire);
       setIsModalOpen(true);
     }
   };
@@ -73,14 +64,8 @@ const WiresPage = () => {
   const handleExecuteWire = (wireId) => {
     const wire = wires.find((w) => w.wire_id === wireId);
     if (wire) {
-      setModalContent(
-        <ExecuteWireModal
-          wire={wire}
-          onExecute={handleExecute}
-          onClose={() => setIsModalOpen(false)}
-        />
-      );
-      setIsModalOpen(true);
+      setWireToExecute(wire);
+      setIsExecuteModalOpen(true);
     }
   };
 
@@ -113,10 +98,16 @@ const WiresPage = () => {
       const response = await fetch(`${API_BASE_URL}/wires/execute`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(inputs),
+        body: JSON.stringify({
+          wire_id: wireToExecute.wire_id,
+          inputs: inputs,
+        }),
       });
 
-      if (!response.ok) throw new Error("Failed to execute wire");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to execute wire");
+      }
 
       return await response.json();
     } catch (error) {
@@ -196,9 +187,25 @@ const WiresPage = () => {
         </div>
       )}
 
-      {/* Modal */}
+      {/* Wire Form Modal */}
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        {modalContent}
+        <WireForm
+          wire={selectedWire}
+          onSubmit={handleSaveWire}
+          onClose={() => setIsModalOpen(false)}
+        />
+      </Modal>
+
+      {/* Execute Wire Modal */}
+      <Modal
+        isOpen={isExecuteModalOpen}
+        onClose={() => setIsExecuteModalOpen(false)}
+      >
+        <ExecuteWireModal
+          wire={wireToExecute}
+          onExecute={handleExecute}
+          onClose={() => setIsExecuteModalOpen(false)}
+        />
       </Modal>
     </div>
   );
