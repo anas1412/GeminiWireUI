@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { FaTimes } from "react-icons/fa"; // Import the "X" icon
 
 const WireflowBuilder = ({ wires, onSave, initialWorkflow }) => {
   const [workflow, setWorkflow] = useState(initialWorkflow || []);
@@ -90,22 +91,41 @@ const WireflowBuilder = ({ wires, onSave, initialWorkflow }) => {
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
-                        className="flex items-center justify-between p-3 transition-shadow duration-300 bg-white rounded-lg shadow-sm hover:shadow-md"
+                        className="p-3 transition-shadow duration-300 bg-white rounded-lg shadow-sm hover:shadow-md"
                       >
-                        <div>
-                          <h4 className="font-semibold text-blue-800 text-md">
-                            {wire.wire_id}
-                          </h4>
-                          <p className="text-sm text-gray-600">
-                            {wire.description}
+                        {/* Input Names */}
+                        {wire.inputs && (
+                          <p className="mb-1 text-xs text-gray-500">
+                            Inputs: {wire.inputs.join(", ")}
                           </p>
+                        )}
+
+                        {/* Wire ID and Description */}
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h4 className="font-semibold text-blue-800 text-md">
+                              {wire.wire_id}
+                            </h4>
+                            <p className="text-sm text-gray-600">
+                              {wire.description}
+                            </p>
+                          </div>
+
+                          {/* Remove Button (Red "X") */}
+                          <button
+                            onClick={() => removeWireFromWorkflow(index)}
+                            className="p-1 text-red-600 transition-colors duration-300 rounded-full hover:text-red-800 hover:bg-red-50"
+                          >
+                            <FaTimes className="w-5 h-5" />
+                          </button>
                         </div>
-                        <button
-                          onClick={() => removeWireFromWorkflow(index)}
-                          className="text-red-600 hover:text-red-800"
-                        >
-                          Remove
-                        </button>
+
+                        {/* Output Key */}
+                        {wire.output_key && (
+                          <p className="mt-1 text-xs text-gray-500">
+                            Output: {wire.output_key}
+                          </p>
+                        )}
                       </li>
                     )}
                   </Draggable>
