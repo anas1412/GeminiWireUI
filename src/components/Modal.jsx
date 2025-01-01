@@ -1,6 +1,6 @@
 import React from "react";
 
-const Modal = ({ isOpen, onClose, children }) => {
+const Modal = ({ isOpen, onClose, children, isLoading }) => {
   if (!isOpen) return null;
 
   return (
@@ -14,7 +14,13 @@ const Modal = ({ isOpen, onClose, children }) => {
             &times;
           </button>
         </div>
-        {children}
+        {isLoading ? (
+          <div className="flex items-center justify-center h-32">
+            <LoadingSpinner />
+          </div>
+        ) : (
+          children
+        )}
       </div>
     </div>
   );

@@ -14,6 +14,7 @@ const WireflowsPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false); // State for edit/add modal
   const [isExecutionModalOpen, setIsExecutionModalOpen] = useState(false); // State for execution modal
   const [executionResult, setExecutionResult] = useState(null); // State for execution result
+  const [isExecuting, setIsExecuting] = useState(false); // State for execution loading
 
   // Fetch available wires
   const fetchWires = async () => {
@@ -113,6 +114,9 @@ const WireflowsPage = () => {
 
   // Execute a wireflow
   const handleExecuteWireflow = async (wireflow_id) => {
+    setIsExecuting(true); // Start loading
+    setIsExecutionModalOpen(true); // Open the execution modal
+
     try {
       const response = await fetch(`${API_BASE_URL}/wireflows/execute`, {
         method: "POST",
@@ -126,10 +130,11 @@ const WireflowsPage = () => {
       if (!response.ok) throw new Error("Failed to execute wireflow");
       const result = await response.json();
       setExecutionResult(result); // Set the execution result
-      setIsExecutionModalOpen(true); // Open the execution modal
     } catch (error) {
       console.error("Error executing wireflow:", error);
       setError("Failed to execute wireflow. Please try again.");
+    } finally {
+      setIsExecuting(false); // Stop loading
     }
   };
 
@@ -195,7 +200,11 @@ const WireflowsPage = () => {
       </Modal>
 
       {/* Modal for execution results */}
-      <Modal isOpen={isExecutionModalOpen} onClose={closeExecutionModal}>
+      <Modal
+        isOpen={isExecutionModalOpen}
+        onClose={closeExecutionModal}
+        isLoading={isExecuting}
+      >
         <h2 className="mb-4 text-xl font-bold text-blue-800">
           Execution Result
         </h2>
