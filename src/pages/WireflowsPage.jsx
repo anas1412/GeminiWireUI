@@ -50,27 +50,39 @@ const WireflowsPage = () => {
 
   const handleSaveWireflow = async (workflow) => {
     try {
-      const workflowId = editingWireflow
-        ? editingWireflow.workflow_id
+      const wireflowId = editingWireflow
+        ? editingWireflow.wireflow_id
         : prompt("Enter a unique ID for this wireflow:");
-      if (workflowId) {
+      const description = editingWireflow
+        ? editingWireflow.description
+        : prompt("Enter a description for this wireflow:");
+
+      if (wireflowId && description) {
         const method = editingWireflow ? "PUT" : "POST";
         const url = editingWireflow
-          ? `${API_BASE_URL}/wireflows/${workflowId}`
+          ? `${API_BASE_URL}/wireflows/${wireflowId}`
           : `${API_BASE_URL}/wireflows/`;
+
+        // Format the workflow data to match the backend schema
+        const wireflowData = {
+          wireflow_id: wireflowId,
+          description: description,
+          wires: workflow.map((wire) => ({
+            wire_id: wire.wire_id,
+            inputs: wire.inputs,
+            output_key: wire.output_key,
+          })),
+        };
 
         const response = await fetch(url, {
           method,
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            workflow_id: workflowId,
-            wires: workflow,
-          }),
+          body: JSON.stringify(wireflowData),
         });
 
         if (!response.ok) throw new Error("Failed to save wireflow");
-        fetchWireflows();
-        setEditingWireflow(null);
+        fetchWireflows(); // Refresh the list of wireflows
+        setEditingWireflow(null); // Reset editing state
       }
     } catch (error) {
       console.error("Error saving wireflow:", error);
@@ -78,21 +90,39 @@ const WireflowsPage = () => {
     }
   };
 
-  const handleDeleteWireflow = async (workflowId) => {
+  const handleDeleteWireflow = async (wireflowId) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/wireflows/${workflowId}`, {
+      const response = await fetch(`${API_BASE_URL}/wireflows/${wireflowId}`, {
         method: "DELETE",
       });
       if (!response.ok) throw new Error("Failed to delete wireflow");
-      fetchWireflows();
+      fetchWireflows(); // Refresh the list of wireflows
     } catch (error) {
       console.error("Error deleting wireflow:", error);
       setError("Failed to delete wireflow. Please try again.");
     }
   };
 
-  const handleExecuteWireflow = (workflowId) => {
-    alert(`Executing wireflow: ${workflowId}`);
+  const handleExecuteWireflow = async (wireflowId) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/wireflows/execute`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          wireflow_id: wireflowId,
+          inputs: {}, // Add inputs if needed
+        }),
+      });
+
+      if (!response.ok) throw new Error("Failed to execute wireflow");
+      const result = await response.json();
+      alert(
+        `Wireflow executed successfully. Result: ${JSON.stringify(result)}`
+      );
+    } catch (error) {
+      console.error("Error executing wireflow:", error);
+      setError("Failed to execute wireflow. Please try again.");
+    }
   };
 
   const handleEditWireflow = (wireflow) => {
@@ -140,7 +170,7 @@ const WireflowsPage = () => {
             <thead>
               <tr className="bg-blue-50">
                 <th className="px-4 py-2 text-left text-blue-800">
-                  Workflow ID
+                  Wireflow ID
                 </th>
                 <th className="px-4 py-2 text-left text-blue-800">Actions</th>
               </tr>
@@ -148,17 +178,17 @@ const WireflowsPage = () => {
             <tbody>
               {wireflows.map((wireflow) => (
                 <tr
-                  key={wireflow.workflow_id}
+                  key={wireflow.wireflow_id}
                   className="border-b hover:bg-gray-50"
                 >
                   <td className="px-4 py-2 text-gray-700">
-                    {wireflow.workflow_id}
+                    {wireflow.wireflow_id}
                   </td>
                   <td className="px-4 py-2">
                     <div className="flex space-x-2">
                       <button
                         onClick={() =>
-                          handleExecuteWireflow(wireflow.workflow_id)
+                          handleExecuteWireflow(wireflow.wireflow_id)
                         }
                         className="p-1 text-green-600 transition-colors duration-300 rounded-full hover:text-green-800 hover:bg-green-50"
                       >
@@ -172,7 +202,7 @@ const WireflowsPage = () => {
                       </button>
                       <button
                         onClick={() =>
-                          handleDeleteWireflow(wireflow.workflow_id)
+                          handleDeleteWireflow(wireflow.wireflow_id)
                         }
                         className="p-1 text-red-600 transition-colors duration-300 rounded-full hover:text-red-800 hover:bg-red-50"
                       >
