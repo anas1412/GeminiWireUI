@@ -106,7 +106,7 @@ const HomePage = () => {
           <div className="mt-6 md:mt-8 text-center">
             <Link
               to="/guide"
-              className="bg-blue-600 text-white px-6 py-2 md:px-8 md:py-3 rounded-lg hover:bg-blue-700 text-md md:text-lg"
+              className="bg-blue-600 text-white px-4 py-2 md:px-8 md:py-3 rounded-lg hover:bg-blue-700 text-sm md:text-lg w-full md:w-auto"
             >
               Learn How to Use GeminiWire
             </Link>
@@ -215,13 +215,13 @@ const HomePage = () => {
         <div className="flex flex-col md:flex-row justify-center gap-4">
           <Link
             to="/wires"
-            className="bg-blue-600 text-white px-6 py-2 md:px-8 md:py-3 rounded-lg hover:bg-blue-700 text-md md:text-lg font-semibold"
+            className="bg-blue-600 text-white px-6 py-2 md:px-8 md:py-3 rounded-lg hover:bg-blue-700 text-md md:text-lg font-semibold w-full md:w-auto"
           >
             Get Started
           </Link>
           <Link
             to="/guide"
-            className="bg-transparent border border-blue-600 text-blue-600 px-6 py-2 md:px-8 md:py-3 rounded-lg hover:bg-blue-600 hover:text-white text-md md:text-lg font-semibold"
+            className="bg-transparent border border-blue-600 text-blue-600 px-6 py-2 md:px-8 md:py-3 rounded-lg hover:bg-blue-600 hover:text-white text-md md:text-lg font-semibold w-full md:w-auto"
           >
             Explore Guides
           </Link>

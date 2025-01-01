@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import WireList from "../components/WireList";
+import { FaEdit, FaPlay, FaTimes } from "react-icons/fa"; // Import icons from react-icons
 import WireForm from "../components/WireForm";
 import ExecuteWireModal from "../components/ExecuteWireModal";
 import LoadingSpinner from "../components/LoadingSpinner";
@@ -22,7 +22,12 @@ const WiresPage = () => {
       const response = await fetch(`${API_BASE_URL}/wires/`);
       if (!response.ok) throw new Error("Failed to fetch wires");
       const data = await response.json();
-      setWires(data);
+      // Ensure inputs is always an array
+      const wiresWithDefaults = data.map((wire) => ({
+        ...wire,
+        inputs: Array.isArray(wire.inputs) ? wire.inputs : [], // Default to an empty array if inputs is missing or not an array
+      }));
+      setWires(wiresWithDefaults);
     } catch (error) {
       console.error("Error fetching wires:", error);
       setError(error.message);
@@ -132,13 +137,13 @@ const WiresPage = () => {
   };
 
   return (
-    <div className="p-6">
+    <div className="p-4 md:p-6 min-h-screen flex flex-col">
       {/* Page Header */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-blue-800">Wires</h1>
+      <div className="flex flex-col md:flex-row justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold text-blue-800 mb-4 md:mb-0">Wires</h1>
         <button
           onClick={handleCreateWire}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-300"
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-300 w-full md:w-auto"
         >
           Create Wire
         </button>
@@ -165,14 +170,48 @@ const WiresPage = () => {
         </div>
       )}
 
-      {/* Wires List */}
+      {/* Wires List as Cards */}
       {!isLoading && !error && (
-        <WireList
-          wires={wires}
-          onEdit={handleEditWire}
-          onDelete={handleDeleteWire}
-          onExecute={handleExecuteWire}
-        />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {wires.map((wire) => (
+            <div
+              key={wire.wire_id}
+              className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 relative"
+            >
+              {/* Delete Button (Top Right) */}
+              <button
+                onClick={() => handleDeleteWire(wire.wire_id)}
+                className="absolute top-2 right-2 text-red-600 hover:text-red-800 p-1 rounded-full hover:bg-red-50 transition-colors duration-300"
+              >
+                <FaTimes className="w-5 h-5" />
+              </button>
+
+              {/* Wire ID and Description */}
+              <div className="pr-8">
+                <h3 className="text-xl font-bold text-blue-800 mb-2">
+                  {wire.wire_id}
+                </h3>
+                <p className="text-gray-700 mb-4">{wire.description}</p>
+              </div>
+
+              {/* Edit and Execute Buttons (Bottom Right) */}
+              <div className="flex justify-end space-x-2">
+                <button
+                  onClick={() => handleEditWire(wire.wire_id)}
+                  className="text-yellow-600 hover:text-yellow-800 p-1 rounded-full hover:bg-yellow-50 transition-colors duration-300"
+                >
+                  <FaEdit className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => handleExecuteWire(wire.wire_id)}
+                  className="text-green-600 hover:text-green-800 p-1 rounded-full hover:bg-green-50 transition-colors duration-300"
+                >
+                  <FaPlay className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       )}
 
       {/* Wire Form Modal */}
