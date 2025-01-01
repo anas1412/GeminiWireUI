@@ -113,7 +113,7 @@ const WireflowsPage = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          wireflow_id: wireflow_id,
+          wireflow_id: wireflow_id, // Ensure wireflow_id is included
           inputs: {}, // Add inputs if needed
         }),
       });
