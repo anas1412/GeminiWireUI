@@ -1,11 +1,11 @@
 import React from "react";
 
-const Modal = ({ isOpen, onClose, children }) => {
+const Modal = ({ isOpen, onClose, children, isLoading }) => {
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="w-11/12 p-6 bg-white rounded-lg shadow-lg md:w-1/2 lg:w-1/3">
+      <div className="bg-white rounded-lg shadow-lg w-11/12 md:w-1/2 lg:w-1/3 p-6 max-h-[80vh] overflow-y-auto">
         <div className="flex justify-end">
           <button
             onClick={onClose}
@@ -14,7 +14,13 @@ const Modal = ({ isOpen, onClose, children }) => {
             &times;
           </button>
         </div>
-        {children}
+        {isLoading ? (
+          <div className="flex items-center justify-center h-32">
+            <LoadingSpinner />
+          </div>
+        ) : (
+          children
+        )}
       </div>
     </div>
   );

@@ -1,8 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { FaEdit, FaTrash, FaPlay, FaPlus } from "react-icons/fa";
+import {
+  FaEdit,
+  FaTrash,
+  FaPlay,
+  FaPlus,
+  FaChevronDown,
+  FaChevronUp,
+} from "react-icons/fa";
 import WireflowBuilder from "../components/WireflowBuilder";
 import LoadingSpinner from "../components/LoadingSpinner";
-import Modal from "../components/Modal"; // Import the Modal component
+import Modal from "../components/Modal";
 import API_BASE_URL from "../config";
 
 const WireflowsPage = () => {
@@ -14,6 +21,8 @@ const WireflowsPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false); // State for edit/add modal
   const [isExecutionModalOpen, setIsExecutionModalOpen] = useState(false); // State for execution modal
   const [executionResult, setExecutionResult] = useState(null); // State for execution result
+  const [isExecuting, setIsExecuting] = useState(false); // State for execution loading
+  const [showFullJson, setShowFullJson] = useState(false); // State to toggle full JSON
 
   // Fetch available wires
   const fetchWires = async () => {
@@ -113,6 +122,10 @@ const WireflowsPage = () => {
 
   // Execute a wireflow
   const handleExecuteWireflow = async (wireflow_id) => {
+    setIsExecuting(true); // Start loading
+    setIsExecutionModalOpen(true); // Open the execution modal
+    setShowFullJson(false); // Hide full JSON by default
+
     try {
       const response = await fetch(`${API_BASE_URL}/wireflows/execute`, {
         method: "POST",
@@ -126,10 +139,11 @@ const WireflowsPage = () => {
       if (!response.ok) throw new Error("Failed to execute wireflow");
       const result = await response.json();
       setExecutionResult(result); // Set the execution result
-      setIsExecutionModalOpen(true); // Open the execution modal
     } catch (error) {
       console.error("Error executing wireflow:", error);
       setError("Failed to execute wireflow. Please try again.");
+    } finally {
+      setIsExecuting(false); // Stop loading
     }
   };
 
@@ -149,6 +163,7 @@ const WireflowsPage = () => {
   const closeExecutionModal = () => {
     setExecutionResult(null);
     setIsExecutionModalOpen(false);
+    setShowFullJson(false); // Reset JSON visibility
   };
 
   return (
@@ -195,13 +210,37 @@ const WireflowsPage = () => {
       </Modal>
 
       {/* Modal for execution results */}
-      <Modal isOpen={isExecutionModalOpen} onClose={closeExecutionModal}>
-        <h2 className="mb-4 text-xl font-bold text-blue-800">
-          Execution Result
-        </h2>
-        <pre className="p-4 bg-gray-100 rounded-lg">
-          {JSON.stringify(executionResult, null, 2)}
-        </pre>
+      <Modal
+        isOpen={isExecutionModalOpen}
+        onClose={closeExecutionModal}
+        isLoading={isExecuting}
+      >
+        {executionResult && (
+          <>
+            <h2 className="mb-4 text-xl font-bold text-blue-800">
+              Execution Result
+            </h2>
+            <div className="p-4 mb-4 overflow-y-auto bg-gray-100 rounded-lg max-h-40">
+              <pre>{executionResult.final_output}</pre>
+            </div>
+            <button
+              onClick={() => setShowFullJson(!showFullJson)}
+              className="flex items-center px-4 py-2 mb-4 text-white bg-blue-500 rounded-lg hover:bg-blue-600"
+            >
+              {showFullJson ? "Hide Full JSON" : "Show Full JSON"}
+              {showFullJson ? (
+                <FaChevronUp className="ml-2" />
+              ) : (
+                <FaChevronDown className="ml-2" />
+              )}
+            </button>
+            {showFullJson && (
+              <div className="p-4 overflow-y-auto bg-gray-100 rounded-lg max-h-40">
+                <pre>{JSON.stringify(executionResult, null, 2)}</pre>
+              </div>
+            )}
+          </>
+        )}
       </Modal>
 
       {!isLoading && !error && (
