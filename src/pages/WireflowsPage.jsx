@@ -116,6 +116,7 @@ const WireflowsPage = () => {
   const handleExecuteWireflow = async (wireflow_id) => {
     setIsExecuting(true); // Start loading
     setIsExecutionModalOpen(true); // Open the execution modal
+    setExecutionResult(null); // Reset previous results
 
     try {
       const response = await fetch(`${API_BASE_URL}/wireflows/execute`, {
@@ -205,12 +206,18 @@ const WireflowsPage = () => {
         onClose={closeExecutionModal}
         isLoading={isExecuting}
       >
-        <h2 className="mb-4 text-xl font-bold text-blue-800">
-          Execution Result
-        </h2>
-        <div className="p-4 overflow-y-auto bg-gray-100 rounded-lg max-h-40">
-          <pre>{executionResult?.final_output}</pre>
-        </div>
+        {executionResult ? (
+          <>
+            <h2 className="mb-4 text-xl font-bold text-blue-800">
+              Execution Result
+            </h2>
+            <div className="p-4 overflow-y-auto bg-gray-100 rounded-lg max-h-40">
+              <pre>{executionResult.final_output}</pre>
+            </div>
+          </>
+        ) : (
+          <p className="text-gray-700">No execution result available.</p>
+        )}
       </Modal>
 
       {!isLoading && !error && (
