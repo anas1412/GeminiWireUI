@@ -29,7 +29,7 @@ const ExecuteWireModal = ({ wire, onExecute, onClose }) => {
       {isLoading && <LoadingSpinner />}
       {result ? (
         <div className="p-4 overflow-y-auto bg-gray-100 rounded-lg max-h-40">
-          <pre>{result.final_output}</pre>
+          <pre>{JSON.stringify(result, null, 2)}</pre>
         </div>
       ) : (
         <form onSubmit={handleSubmit}>
