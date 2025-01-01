@@ -1,28 +1,25 @@
 import React, { useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import { FaTimes } from "react-icons/fa"; // Import the "X" icon
+import { FaTimes } from "react-icons/fa";
 
 const WireflowBuilder = ({ wires, onSave, initialWorkflow }) => {
   const [workflow, setWorkflow] = useState(initialWorkflow || []);
 
-  // Handle drag-and-drop
   const onDragEnd = (result) => {
     const { source, destination } = result;
 
-    if (!destination) return; // Dropped outside the list
+    if (!destination) return;
 
     if (
       source.droppableId === "wires" &&
       destination.droppableId === "workflow"
     ) {
-      // Add wire to workflow
-      const wire = wires.find((w) => w.id === result.draggableId);
-      setWorkflow([...workflow, wire]);
+      const wire = wires.find((w) => w.wire_id === result.draggableId);
+      setWorkflow([...workflow, { ...wire, inputs: {}, output_key: "" }]);
     } else if (
       source.droppableId === "workflow" &&
       destination.droppableId === "workflow"
     ) {
-      // Reorder wires in workflow
       const newWorkflow = Array.from(workflow);
       const [removed] = newWorkflow.splice(source.index, 1);
       newWorkflow.splice(destination.index, 0, removed);
@@ -30,9 +27,20 @@ const WireflowBuilder = ({ wires, onSave, initialWorkflow }) => {
     }
   };
 
-  // Remove a wire from the workflow
   const removeWireFromWorkflow = (index) => {
     const newWorkflow = workflow.filter((_, i) => i !== index);
+    setWorkflow(newWorkflow);
+  };
+
+  const updateWireInputs = (index, inputs) => {
+    const newWorkflow = [...workflow];
+    newWorkflow[index].inputs = inputs;
+    setWorkflow(newWorkflow);
+  };
+
+  const updateWireOutputKey = (index, outputKey) => {
+    const newWorkflow = [...workflow];
+    newWorkflow[index].output_key = outputKey;
     setWorkflow(newWorkflow);
   };
 
@@ -50,7 +58,11 @@ const WireflowBuilder = ({ wires, onSave, initialWorkflow }) => {
               <h3 className="mb-4 text-lg font-semibold">Available Wires</h3>
               <ul className="space-y-2">
                 {wires.map((wire, index) => (
-                  <Draggable key={wire.id} draggableId={wire.id} index={index}>
+                  <Draggable
+                    key={wire.wire_id}
+                    draggableId={wire.wire_id}
+                    index={index}
+                  >
                     {(provided) => (
                       <li
                         ref={provided.innerRef}
@@ -85,7 +97,11 @@ const WireflowBuilder = ({ wires, onSave, initialWorkflow }) => {
               <h3 className="mb-4 text-lg font-semibold">Workflow</h3>
               <ul className="space-y-2">
                 {workflow.map((wire, index) => (
-                  <Draggable key={wire.id} draggableId={wire.id} index={index}>
+                  <Draggable
+                    key={wire.wire_id}
+                    draggableId={wire.wire_id}
+                    index={index}
+                  >
                     {(provided) => (
                       <li
                         ref={provided.innerRef}
@@ -93,19 +109,45 @@ const WireflowBuilder = ({ wires, onSave, initialWorkflow }) => {
                         {...provided.dragHandleProps}
                         className="flex items-center justify-between p-3 transition-shadow duration-300 bg-white rounded-lg shadow-sm hover:shadow-md"
                       >
-                        <div>
+                        <div className="flex-1">
                           <h4 className="font-semibold text-blue-800 text-md">
                             {wire.wire_id}
                           </h4>
-                          <p className="text-sm text-gray-600">
-                            {wire.description}
-                          </p>
+                          <div className="mt-2">
+                            <label className="block text-sm text-gray-600">
+                              Inputs:
+                            </label>
+                            <input
+                              type="text"
+                              value={JSON.stringify(wire.inputs)}
+                              onChange={(e) =>
+                                updateWireInputs(
+                                  index,
+                                  JSON.parse(e.target.value)
+                                )
+                              }
+                              className="w-full p-1 border rounded"
+                            />
+                          </div>
+                          <div className="mt-2">
+                            <label className="block text-sm text-gray-600">
+                              Output Key:
+                            </label>
+                            <input
+                              type="text"
+                              value={wire.output_key}
+                              onChange={(e) =>
+                                updateWireOutputKey(index, e.target.value)
+                              }
+                              className="w-full p-1 border rounded"
+                            />
+                          </div>
                         </div>
                         <button
                           onClick={() => removeWireFromWorkflow(index)}
                           className="p-1 text-red-600 transition-colors duration-300 rounded-full hover:text-red-800 hover:bg-red-50"
                         >
-                          <FaTimes className="w-5 h-5" /> {/* Red "X" icon */}
+                          <FaTimes className="w-5 h-5" />
                         </button>
                       </li>
                     )}
