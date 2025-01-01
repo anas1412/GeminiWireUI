@@ -12,7 +12,6 @@ Welcome to the **Wire Management Dashboard** for [GeminiWire](https://github.com
 ## 🚀 Technologies Used
 
 - **React**: For a fast and dynamic user interface. ⚛️
-- **Axios**: To fetch data from the backend like a data-fetching ninja. 🥷
 - **Tailwind CSS**: For sleek and responsive styling. 🌈
 
 ## ⚙️ Setup Instructions
