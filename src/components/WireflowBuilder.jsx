@@ -5,22 +5,18 @@ import { FaTimes } from "react-icons/fa";
 const WireflowBuilder = ({ wires, onSave, initialWorkflow }) => {
   const [workflow, setWorkflow] = useState(initialWorkflow || []);
 
-  // Handle drag-and-drop events
   const onDragEnd = (result) => {
     const { source, destination } = result;
 
     if (!destination) return;
 
-    // Add wire to workflow
     if (
       source.droppableId === "wires" &&
       destination.droppableId === "workflow"
     ) {
       const wire = wires.find((w) => w.wire_id === result.draggableId);
       setWorkflow([...workflow, { ...wire, inputs: {} }]);
-    }
-    // Reorder wires in workflow
-    else if (
+    } else if (
       source.droppableId === "workflow" &&
       destination.droppableId === "workflow"
     ) {
@@ -31,13 +27,11 @@ const WireflowBuilder = ({ wires, onSave, initialWorkflow }) => {
     }
   };
 
-  // Remove a wire from the workflow
   const removeWireFromWorkflow = (index) => {
     const newWorkflow = workflow.filter((_, i) => i !== index);
     setWorkflow(newWorkflow);
   };
 
-  // Update the value of a specific input for a wire
   const updateWireInput = (index, inputKey, value) => {
     const newWorkflow = [...workflow];
     newWorkflow[index].inputs[inputKey] = value;
