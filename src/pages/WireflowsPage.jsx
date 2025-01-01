@@ -51,25 +51,25 @@ const WireflowsPage = () => {
   }, []);
 
   // Save or update a wireflow
-  const handleSaveWireflow = async (workflow) => {
+  const handleSaveWireflow = async (wireflow) => {
     try {
-      const workflow_id = editingWireflow
-        ? editingWireflow.workflow_id
+      const wireflow_id = editingWireflow
+        ? editingWireflow.wireflow_id
         : prompt("Enter a unique ID for this wireflow:");
       const description = editingWireflow
         ? editingWireflow.description
         : prompt("Enter a description for this wireflow:");
 
-      if (workflow_id && description) {
+      if (wireflow_id && description) {
         const method = editingWireflow ? "PUT" : "POST";
         const url = editingWireflow
-          ? `${API_BASE_URL}/wireflows/${workflow_id}`
+          ? `${API_BASE_URL}/wireflows/${wireflow_id}`
           : `${API_BASE_URL}/wireflows/`;
 
         const wireflowData = {
-          workflow_id: workflow_id,
+          wireflow_id: wireflow_id,
           description: description,
-          wires: workflow.map((wire) => ({
+          wires: wireflow.map((wire) => ({
             wire_id: wire.wire_id,
             inputs: wire.inputs,
             output_key: wire.output_key,
@@ -93,9 +93,9 @@ const WireflowsPage = () => {
   };
 
   // Delete a wireflow
-  const handleDeleteWireflow = async (workflow_id) => {
+  const handleDeleteWireflow = async (wireflow_id) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/wireflows/${workflow_id}`, {
+      const response = await fetch(`${API_BASE_URL}/wireflows/${wireflow_id}`, {
         method: "DELETE",
       });
       if (!response.ok) throw new Error("Failed to delete wireflow");
@@ -107,13 +107,13 @@ const WireflowsPage = () => {
   };
 
   // Execute a wireflow
-  const handleExecuteWireflow = async (workflow_id) => {
+  const handleExecuteWireflow = async (wireflow_id) => {
     try {
       const response = await fetch(`${API_BASE_URL}/wireflows/execute`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          workflow_id: workflow_id,
+          wireflow_id: wireflow_id,
           inputs: {}, // Add inputs if needed
         }),
       });
@@ -165,7 +165,7 @@ const WireflowsPage = () => {
         <WireflowBuilder
           wires={wires}
           onSave={handleSaveWireflow}
-          initialWorkflow={editingWireflow?.wires}
+          initialWireflow={editingWireflow?.wires}
         />
       </div>
 
@@ -183,17 +183,17 @@ const WireflowsPage = () => {
             <tbody>
               {wireflows.map((wireflow) => (
                 <tr
-                  key={wireflow.workflow_id}
+                  key={wireflow.wireflow_id}
                   className="border-b hover:bg-gray-50"
                 >
                   <td className="px-4 py-2 text-gray-700">
-                    {wireflow.workflow_id}
+                    {wireflow.wireflow_id}
                   </td>
                   <td className="px-4 py-2">
                     <div className="flex space-x-2">
                       <button
                         onClick={() =>
-                          handleExecuteWireflow(wireflow.workflow_id)
+                          handleExecuteWireflow(wireflow.wireflow_id)
                         }
                         className="p-1 text-green-600 transition-colors duration-300 rounded-full hover:text-green-800 hover:bg-green-50"
                       >
@@ -207,7 +207,7 @@ const WireflowsPage = () => {
                       </button>
                       <button
                         onClick={() =>
-                          handleDeleteWireflow(wireflow.workflow_id)
+                          handleDeleteWireflow(wireflow.wireflow_id)
                         }
                         className="p-1 text-red-600 transition-colors duration-300 rounded-full hover:text-red-800 hover:bg-red-50"
                       >

@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { FaTimes } from "react-icons/fa";
 
-const WireflowBuilder = ({ wires, onSave, initialWorkflow }) => {
-  const [workflow, setWorkflow] = useState(initialWorkflow || []);
+const WireflowBuilder = ({ wires, onSave, initialWireflow }) => {
+  const [wireflow, setWireflow] = useState(initialWireflow || []);
 
   const onDragEnd = (result) => {
     const { source, destination } = result;
@@ -12,37 +12,37 @@ const WireflowBuilder = ({ wires, onSave, initialWorkflow }) => {
 
     if (
       source.droppableId === "wires" &&
-      destination.droppableId === "workflow"
+      destination.droppableId === "wireflow"
     ) {
       const wire = wires.find((w) => w.wire_id === result.draggableId);
       const inputs = Object.keys(wire.inputs || {}).reduce((acc, key) => {
         acc[key] = ""; // Initialize each input with an empty string
         return acc;
       }, {});
-      setWorkflow([
-        ...workflow,
+      setWireflow([
+        ...wireflow,
         { ...wire, inputs, output_key: wire.output_key },
       ]);
     } else if (
-      source.droppableId === "workflow" &&
-      destination.droppableId === "workflow"
+      source.droppableId === "wireflow" &&
+      destination.droppableId === "wireflow"
     ) {
-      const newWorkflow = Array.from(workflow);
-      const [removed] = newWorkflow.splice(source.index, 1);
-      newWorkflow.splice(destination.index, 0, removed);
-      setWorkflow(newWorkflow);
+      const newWireflow = Array.from(wireflow);
+      const [removed] = newWireflow.splice(source.index, 1);
+      newWireflow.splice(destination.index, 0, removed);
+      setWireflow(newWireflow);
     }
   };
 
-  const removeWireFromWorkflow = (index) => {
-    const newWorkflow = workflow.filter((_, i) => i !== index);
-    setWorkflow(newWorkflow);
+  const removeWireFromWireflow = (index) => {
+    const newWireflow = wireflow.filter((_, i) => i !== index);
+    setWireflow(newWireflow);
   };
 
   const updateWireInput = (index, inputKey, value) => {
-    const newWorkflow = [...workflow];
-    newWorkflow[index].inputs[inputKey] = value;
-    setWorkflow(newWorkflow);
+    const newWireflow = [...wireflow];
+    newWireflow[index].inputs[inputKey] = value;
+    setWireflow(newWireflow);
   };
 
   return (
@@ -87,17 +87,17 @@ const WireflowBuilder = ({ wires, onSave, initialWorkflow }) => {
           )}
         </Droppable>
 
-        {/* Workflow Canvas */}
-        <Droppable droppableId="workflow">
+        {/* Wireflow Canvas */}
+        <Droppable droppableId="wireflow">
           {(provided) => (
             <div
               ref={provided.innerRef}
               {...provided.droppableProps}
               className="flex-1 p-4 bg-gray-100 rounded-lg shadow-md"
             >
-              <h3 className="mb-4 text-lg font-semibold">Workflow</h3>
+              <h3 className="mb-4 text-lg font-semibold">Wireflow</h3>
               <ul className="space-y-2">
-                {workflow.map((wire, index) => (
+                {wireflow.map((wire, index) => (
                   <Draggable
                     key={wire.wire_id}
                     draggableId={wire.wire_id}
@@ -148,7 +148,7 @@ const WireflowBuilder = ({ wires, onSave, initialWorkflow }) => {
                           </div>
                         </div>
                         <button
-                          onClick={() => removeWireFromWorkflow(index)}
+                          onClick={() => removeWireFromWireflow(index)}
                           className="p-1 text-red-600 transition-colors duration-300 rounded-full hover:text-red-800 hover:bg-red-50"
                         >
                           <FaTimes className="w-5 h-5" />
@@ -166,7 +166,7 @@ const WireflowBuilder = ({ wires, onSave, initialWorkflow }) => {
 
       {/* Save Button */}
       <button
-        onClick={() => onSave(workflow)}
+        onClick={() => onSave(wireflow)}
         className="px-4 py-2 mt-4 text-white transition duration-300 bg-green-500 rounded-lg hover:bg-green-600"
       >
         Save Wireflow
