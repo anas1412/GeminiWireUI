@@ -11,7 +11,9 @@ const WireflowsPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [editingWireflow, setEditingWireflow] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false); // State for modal visibility
+  const [isModalOpen, setIsModalOpen] = useState(false); // State for edit/add modal
+  const [isExecutionModalOpen, setIsExecutionModalOpen] = useState(false); // State for execution modal
+  const [executionResult, setExecutionResult] = useState(null); // State for execution result
 
   // Fetch available wires
   const fetchWires = async () => {
@@ -123,9 +125,8 @@ const WireflowsPage = () => {
 
       if (!response.ok) throw new Error("Failed to execute wireflow");
       const result = await response.json();
-      alert(
-        `Wireflow executed successfully. Result: ${JSON.stringify(result)}`
-      );
+      setExecutionResult(result); // Set the execution result
+      setIsExecutionModalOpen(true); // Open the execution modal
     } catch (error) {
       console.error("Error executing wireflow:", error);
       setError("Failed to execute wireflow. Please try again.");
@@ -142,6 +143,12 @@ const WireflowsPage = () => {
   const closeModal = () => {
     setEditingWireflow(null);
     setIsModalOpen(false);
+  };
+
+  // Close execution modal
+  const closeExecutionModal = () => {
+    setExecutionResult(null);
+    setIsExecutionModalOpen(false);
   };
 
   return (
@@ -185,6 +192,16 @@ const WireflowsPage = () => {
           onSave={handleSaveWireflow}
           initialWireflow={editingWireflow?.wires}
         />
+      </Modal>
+
+      {/* Modal for execution results */}
+      <Modal isOpen={isExecutionModalOpen} onClose={closeExecutionModal}>
+        <h2 className="mb-4 text-xl font-bold text-blue-800">
+          Execution Result
+        </h2>
+        <pre className="p-4 bg-gray-100 rounded-lg">
+          {JSON.stringify(executionResult, null, 2)}
+        </pre>
       </Modal>
 
       {!isLoading && !error && (
