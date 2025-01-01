@@ -199,17 +199,6 @@ const WireflowsPage = () => {
           </table>
         </div>
       )}
-
-      {/* Footer */}
-      <footer className="py-4 mt-auto text-white bg-blue-600">
-        <div className="container mx-auto text-center">
-          <p className="text-sm">
-            © {new Date().getFullYear()} GeminiWire. All rights reserved. |
-            Powered by Google's Gemini AI
-          </p>
-          <p className="mt-1 text-xs">Free to use, forever.</p>
-        </div>
-      </footer>
     </div>
   );
 };
