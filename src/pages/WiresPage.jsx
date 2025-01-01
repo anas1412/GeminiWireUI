@@ -63,6 +63,7 @@ const WiresPage = () => {
       fetchWires();
     } catch (error) {
       console.error("Error deleting wire:", error);
+      setError("Failed to delete wire. Please try again.");
     }
   };
 
@@ -80,56 +81,41 @@ const WiresPage = () => {
   // Handle saving a wire (both adding and editing)
   const handleSaveWire = async (wire) => {
     try {
-      // Determine if this is an edit or create operation
-      const isEdit = selectedWire !== null; // If selectedWire is not null, it's an edit
-
-      // Use the appropriate URL and method
+      const isEdit = selectedWire !== null;
       const url = isEdit
-        ? `${API_BASE_URL}/wires/${wire.wire_id}` // Edit: PUT /wires/:wire_id
-        : `${API_BASE_URL}/wires/`; // Create: POST /wires/
-
+        ? `${API_BASE_URL}/wires/${wire.wire_id}`
+        : `${API_BASE_URL}/wires/`;
       const method = isEdit ? "PUT" : "POST";
 
-      // Include wire_id in the request body for both create and edit
-      const requestBody = wire;
-
-      // Debug: Log the request details
-      console.log("URL:", url);
-      console.log("Method:", method);
-      console.log("Request Body:", requestBody);
-
-      // Send the request
       const response = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestBody),
+        body: JSON.stringify(wire),
       });
 
       if (!response.ok) throw new Error("Failed to save wire");
 
-      // Refresh the list of wires and close the form
       fetchWires();
       setShowWireForm(false);
     } catch (error) {
       console.error("Error saving wire:", error);
+      setError("Failed to save wire. Please try again.");
     }
   };
 
   // Handle the actual execution request
   const handleExecute = async (inputs) => {
     try {
-      // Ensure wireToExecute is defined
       if (!wireToExecute) {
         throw new Error("Wire to execute is not defined");
       }
 
-      // Send the execution request
       const response = await fetch(`${API_BASE_URL}/wires/execute`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          wire_id: wireToExecute.wire_id, // Pass the wire_id of the wire to execute
-          inputs: inputs, // Pass the inputs provided by the user
+          wire_id: wireToExecute.wire_id,
+          inputs: inputs,
         }),
       });
 
@@ -138,7 +124,6 @@ const WiresPage = () => {
         throw new Error(errorData.error || "Failed to execute wire");
       }
 
-      // Return the execution result
       return await response.json();
     } catch (error) {
       console.error("Error executing wire:", error);
@@ -147,12 +132,23 @@ const WiresPage = () => {
   };
 
   return (
-    <div>
+    <div className="p-6">
+      {/* Page Header */}
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold text-blue-800">Wires</h1>
+        <button
+          onClick={handleCreateWire}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-300"
+        >
+          Create Wire
+        </button>
+      </div>
+
       {/* Loading Spinner and Message */}
       {isLoading && (
         <div className="flex justify-center items-center h-64">
           <LoadingSpinner />
-          <p className="ml-2">Loading wires...</p>
+          <p className="ml-2 text-gray-700">Loading wires...</p>
         </div>
       )}
 
@@ -160,25 +156,23 @@ const WiresPage = () => {
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
           <p>Error: {error}</p>
+          <button
+            onClick={fetchWires}
+            className="mt-2 bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition duration-300"
+          >
+            Retry
+          </button>
         </div>
       )}
 
-      {/* Wires List and Actions */}
+      {/* Wires List */}
       {!isLoading && !error && (
-        <>
-          <button
-            onClick={handleCreateWire}
-            className="bg-blue-500 text-white px-4 py-2 rounded mb-4"
-          >
-            Create Wire
-          </button>
-          <WireList
-            wires={wires}
-            onEdit={handleEditWire}
-            onDelete={handleDeleteWire}
-            onExecute={handleExecuteWire} // Pass handleExecuteWire to WireList
-          />
-        </>
+        <WireList
+          wires={wires}
+          onEdit={handleEditWire}
+          onDelete={handleDeleteWire}
+          onExecute={handleExecuteWire}
+        />
       )}
 
       {/* Wire Form Modal */}
