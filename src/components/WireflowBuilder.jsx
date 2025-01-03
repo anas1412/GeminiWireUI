@@ -2,11 +2,17 @@ import React, { useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { FaTimes } from "react-icons/fa";
 
-const WireflowBuilder = ({ wires, onSave, initialWireflow }) => {
-  const [wireflow, setWireflow] = useState(initialWireflow || []);
+const WireflowBuilder = ({
+  wires,
+  onSave,
+  initialWireflow = [],
+  initialWireflowId = "",
+  initialDescription = "",
+}) => {
+  const [wireflow, setWireflow] = useState(initialWireflow);
   const [step, setStep] = useState(1); // Multi-step form state
-  const [wireflowId, setWireflowId] = useState(""); // State for wireflow ID
-  const [description, setDescription] = useState(""); // State for description
+  const [wireflowId, setWireflowId] = useState(initialWireflowId); // Pre-fill wireflow ID
+  const [description, setDescription] = useState(initialDescription); // Pre-fill description
 
   const onDragEnd = (result) => {
     const { source, destination } = result;
