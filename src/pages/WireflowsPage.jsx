@@ -59,13 +59,6 @@ const WireflowsPage = () => {
     try {
       const { wireflowId, description, wires } = wireflowData;
 
-      console.log("Saving wireflow with data:", {
-        wireflowId,
-        description,
-        wires,
-        editingWireflow,
-      });
-
       if (wireflowId && description) {
         const method = editingWireflow ? "PUT" : "POST";
         const url = editingWireflow
@@ -81,8 +74,6 @@ const WireflowsPage = () => {
             output_key: wire.output_key,
           })),
         };
-
-        console.log("Sending payload:", wireflowPayload);
 
         const response = await fetch(url, {
           method,
@@ -230,55 +221,40 @@ const WireflowsPage = () => {
       </Modal>
 
       {!isLoading && !error && (
-        <div className="overflow-x-auto">
-          <table className="min-w-full bg-white rounded-lg shadow-md">
-            <thead>
-              <tr className="bg-blue-50">
-                <th className="px-4 py-2 text-left text-blue-800">
-                  Wireflow ID
-                </th>
-                <th className="px-4 py-2 text-left text-blue-800">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {wireflows.map((wireflow) => (
-                <tr
-                  key={wireflow.wireflow_id}
-                  className="border-b hover:bg-gray-50"
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {wireflows.map((wireflow) => (
+            <div
+              key={wireflow.wireflow_id}
+              className="p-4 transition-shadow duration-300 bg-white rounded-lg shadow-md hover:shadow-lg"
+            >
+              <h3 className="text-lg font-semibold text-blue-800">
+                {wireflow.wireflow_id}
+              </h3>
+              <p className="mt-2 text-sm text-gray-600">
+                {wireflow.description}
+              </p>
+              <div className="flex justify-end mt-4 space-x-2">
+                <button
+                  onClick={() => handleExecuteWireflow(wireflow.wireflow_id)}
+                  className="p-1 text-green-600 transition-colors duration-300 rounded-full hover:text-green-800 hover:bg-green-50"
                 >
-                  <td className="px-4 py-2 text-gray-700">
-                    {wireflow.wireflow_id}
-                  </td>
-                  <td className="px-4 py-2">
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() =>
-                          handleExecuteWireflow(wireflow.wireflow_id)
-                        }
-                        className="p-1 text-green-600 transition-colors duration-300 rounded-full hover:text-green-800 hover:bg-green-50"
-                      >
-                        <FaPlay className="w-5 h-5" />
-                      </button>
-                      <button
-                        onClick={() => openModal(wireflow)}
-                        className="p-1 text-yellow-600 transition-colors duration-300 rounded-full hover:text-yellow-800 hover:bg-yellow-50"
-                      >
-                        <FaEdit className="w-5 h-5" />
-                      </button>
-                      <button
-                        onClick={() =>
-                          handleDeleteWireflow(wireflow.wireflow_id)
-                        }
-                        className="p-1 text-red-600 transition-colors duration-300 rounded-full hover:text-red-800 hover:bg-red-50"
-                      >
-                        <FaTrash className="w-5 h-5" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  <FaPlay className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => openModal(wireflow)}
+                  className="p-1 text-yellow-600 transition-colors duration-300 rounded-full hover:text-yellow-800 hover:bg-yellow-50"
+                >
+                  <FaEdit className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => handleDeleteWireflow(wireflow.wireflow_id)}
+                  className="p-1 text-red-600 transition-colors duration-300 rounded-full hover:text-red-800 hover:bg-red-50"
+                >
+                  <FaTrash className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>

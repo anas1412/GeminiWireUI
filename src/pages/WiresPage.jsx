@@ -14,6 +14,7 @@ const WiresPage = () => {
   const [isExecuteModalOpen, setIsExecuteModalOpen] = useState(false);
   const [selectedWire, setSelectedWire] = useState(null);
   const [wireToExecute, setWireToExecute] = useState(null);
+  const [isSaving, setIsSaving] = useState(false); // New state for saving
 
   const fetchWires = async () => {
     setIsLoading(true);
@@ -70,6 +71,7 @@ const WiresPage = () => {
   };
 
   const handleSaveWire = async (wire) => {
+    setIsSaving(true); // Start loading spinner
     try {
       const isEdit = wires.some((w) => w.wire_id === wire.wire_id);
       const url = isEdit
@@ -90,6 +92,8 @@ const WiresPage = () => {
     } catch (error) {
       console.error("Error saving wire:", error);
       setError("Failed to save wire. Please try again.");
+    } finally {
+      setIsSaving(false); // Stop loading spinner
     }
   };
 
@@ -148,27 +152,17 @@ const WiresPage = () => {
       )}
 
       {!isLoading && !error && (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {wires.map((wire) => (
             <div
               key={wire.wire_id}
-              className="relative p-4 transition-shadow duration-300 bg-white rounded-lg shadow-md hover:shadow-lg"
+              className="p-4 transition-shadow duration-300 bg-white rounded-lg shadow-md hover:shadow-lg"
             >
-              <button
-                onClick={() => handleDeleteWire(wire.wire_id)}
-                className="absolute p-1 text-red-600 transition-colors duration-300 rounded-full top-2 right-2 hover:text-red-800 hover:bg-red-50"
-              >
-                <FaTimes className="w-5 h-5" />
-              </button>
-
-              <div className="pr-8">
-                <h3 className="mb-2 text-xl font-bold text-blue-800">
-                  {wire.wire_id}
-                </h3>
-                <p className="mb-4 text-gray-700">{wire.description}</p>
-              </div>
-
-              <div className="flex justify-end space-x-2">
+              <h3 className="text-lg font-semibold text-blue-800">
+                {wire.wire_id}
+              </h3>
+              <p className="mt-2 text-sm text-gray-600">{wire.description}</p>
+              <div className="flex justify-end mt-4 space-x-2">
                 <button
                   onClick={() => handleEditWire(wire.wire_id)}
                   className="p-1 text-yellow-600 transition-colors duration-300 rounded-full hover:text-yellow-800 hover:bg-yellow-50"
@@ -181,6 +175,12 @@ const WiresPage = () => {
                 >
                   <FaPlay className="w-5 h-5" />
                 </button>
+                <button
+                  onClick={() => handleDeleteWire(wire.wire_id)}
+                  className="p-1 text-red-600 transition-colors duration-300 rounded-full hover:text-red-800 hover:bg-red-50"
+                >
+                  <FaTimes className="w-5 h-5" />
+                </button>
               </div>
             </div>
           ))}
@@ -189,11 +189,19 @@ const WiresPage = () => {
 
       {/* Wire Form Modal */}
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        <WireForm
-          wire={selectedWire}
-          onSubmit={handleSaveWire}
-          onClose={() => setIsModalOpen(false)}
-        />
+        {isSaving ? (
+          <div className="flex items-center justify-center h-32">
+            <LoadingSpinner />
+            <p className="ml-2 text-gray-700">Saving wire...</p>
+          </div>
+        ) : (
+          <WireForm
+            wire={selectedWire}
+            onSubmit={handleSaveWire}
+            onClose={() => setIsModalOpen(false)}
+            isSaving={isSaving} // Pass isSaving to disable the save button
+          />
+        )}
       </Modal>
 
       {/* Execute Wire Modal */}
