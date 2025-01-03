@@ -220,6 +220,7 @@ const WireflowBuilder = ({
                                             e.target.value
                                           )
                                         }
+                                        placeholder={wire.inputs[inputKey]} // Add placeholder
                                         className="w-full p-1 border rounded"
                                       />
                                     </div>
