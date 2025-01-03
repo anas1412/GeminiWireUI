@@ -1,277 +1,310 @@
-import React, { useState, useEffect } from "react";
-import { FaEdit, FaTrash, FaPlay, FaPlus } from "react-icons/fa";
-import WireflowBuilder from "../components/WireflowBuilder";
-import LoadingSpinner from "../components/LoadingSpinner";
-import Modal from "../components/Modal";
-import API_BASE_URL from "../config";
+import React, { useState } from "react";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { FaTimes } from "react-icons/fa";
 
-const WireflowsPage = () => {
-  const [wires, setWires] = useState([]);
-  const [wireflows, setWireflows] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [editingWireflow, setEditingWireflow] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isExecutionModalOpen, setIsExecutionModalOpen] = useState(false);
-  const [executionResult, setExecutionResult] = useState(null);
-  const [isExecuting, setIsExecuting] = useState(false);
-  const [isSaving, setIsSaving] = useState(false); // New state for saving
+const WireflowBuilder = ({
+  wires,
+  onSave,
+  initialWireflow = [],
+  initialWireflowId = "",
+  initialDescription = "",
+}) => {
+  const [wireflow, setWireflow] = useState(initialWireflow);
+  const [step, setStep] = useState(1); // Multi-step form state
+  const [wireflowId, setWireflowId] = useState(initialWireflowId); // Pre-fill wireflow ID
+  const [description, setDescription] = useState(initialDescription); // Pre-fill description
 
-  const fetchWires = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const response = await fetch(`${API_BASE_URL}/wires/`);
-      if (!response.ok) throw new Error("Failed to fetch wires");
-      const data = await response.json();
-      setWires(data);
-    } catch (error) {
-      console.error("Error fetching wires:", error);
-      setError("Failed to fetch wires. Please try again.");
-    } finally {
-      setIsLoading(false);
+  const onDragEnd = (result) => {
+    const { source, destination } = result;
+
+    if (!destination) return;
+
+    if (
+      source.droppableId === "wires" &&
+      destination.droppableId === "wireflow"
+    ) {
+      const wire = wires.find((w) => w.wire_id === result.draggableId);
+      const inputs = Object.keys(wire.inputs || {}).reduce((acc, key) => {
+        acc[key] = ""; // Initialize each input with an empty string
+        return acc;
+      }, {});
+      setWireflow([
+        ...wireflow,
+        { ...wire, inputs, output_key: wire.output_key },
+      ]);
+    } else if (
+      source.droppableId === "wireflow" &&
+      destination.droppableId === "wireflow"
+    ) {
+      const newWireflow = Array.from(wireflow);
+      const [removed] = newWireflow.splice(source.index, 1);
+      newWireflow.splice(destination.index, 0, removed);
+      setWireflow(newWireflow);
     }
   };
 
-  const fetchWireflows = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const response = await fetch(`${API_BASE_URL}/wireflows/`);
-      if (!response.ok) throw new Error("Failed to fetch wireflows");
-      const data = await response.json();
-      setWireflows(data);
-    } catch (error) {
-      console.error("Error fetching wireflows:", error);
-      setError("Failed to fetch wireflows. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
+  const removeWireFromWireflow = (index) => {
+    const newWireflow = wireflow.filter((_, i) => i !== index);
+    setWireflow(newWireflow);
   };
 
-  useEffect(() => {
-    fetchWires();
-    fetchWireflows();
-  }, []);
-
-  const handleSaveWireflow = async (wireflowData) => {
-    setIsSaving(true); // Start loading spinner
-    try {
-      const { wireflowId, description, wires } = wireflowData;
-
-      if (wireflowId && description) {
-        const method = editingWireflow ? "PUT" : "POST";
-        const url = editingWireflow
-          ? `${API_BASE_URL}/wireflows/${wireflowId}`
-          : `${API_BASE_URL}/wireflows/`;
-
-        const wireflowPayload = {
-          wireflow_id: wireflowId,
-          description: description,
-          wires: wires.map((wire) => ({
-            wire_id: wire.wire_id,
-            inputs: wire.inputs,
-            output_key: wire.output_key,
-          })),
-        };
-
-        const response = await fetch(url, {
-          method,
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(wireflowPayload),
-        });
-
-        if (!response.ok) throw new Error("Failed to save wireflow");
-        fetchWireflows(); // Refresh the list of wireflows
-        setEditingWireflow(null); // Reset editing state
-        setIsModalOpen(false); // Close the modal
-      }
-    } catch (error) {
-      console.error("Error saving wireflow:", error);
-      setError("Failed to save wireflow. Please try again.");
-    } finally {
-      setIsSaving(false); // Stop loading spinner
-    }
+  const updateWireInput = (index, inputKey, value) => {
+    const newWireflow = [...wireflow];
+    newWireflow[index].inputs[inputKey] = value;
+    setWireflow(newWireflow);
   };
 
-  const handleDeleteWireflow = async (wireflow_id) => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/wireflows/${wireflow_id}`, {
-        method: "DELETE",
-      });
-      if (!response.ok) throw new Error("Failed to delete wireflow");
-      fetchWireflows();
-    } catch (error) {
-      console.error("Error deleting wireflow:", error);
-      setError("Failed to delete wireflow. Please try again.");
-    }
+  const handleNextStep = () => {
+    setStep(step + 1);
   };
 
-  const handleExecuteWireflow = async (wireflow_id) => {
-    setIsExecuting(true);
-    setIsExecutionModalOpen(true);
-    setExecutionResult(null);
-
-    try {
-      const response = await fetch(`${API_BASE_URL}/wireflows/execute`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          wireflow_id: wireflow_id,
-          inputs: {},
-        }),
-      });
-
-      if (!response.ok) throw new Error("Failed to execute wireflow");
-      const result = await response.json();
-      setExecutionResult(result);
-    } catch (error) {
-      console.error("Error executing wireflow:", error);
-      setError("Failed to execute wireflow. Please try again.");
-    } finally {
-      setIsExecuting(false);
-    }
-  };
-
-  const openModal = (wireflow = null) => {
-    setEditingWireflow(wireflow);
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setEditingWireflow(null);
-    setIsModalOpen(false);
-  };
-
-  const closeExecutionModal = () => {
-    setExecutionResult(null);
-    setIsExecutionModalOpen(false);
+  const handlePreviousStep = () => {
+    setStep(step - 1);
   };
 
   return (
-    <div className="flex flex-col min-h-screen p-4 md:p-6">
-      <div className="flex flex-col items-center justify-between mb-6 md:flex-row">
-        <h1 className="mb-4 text-2xl font-bold text-blue-800 md:mb-0">
-          Wireflows
-        </h1>
-        <button
-          onClick={() => openModal()}
-          className="flex items-center px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600"
-        >
-          <FaPlus className="mr-2" />
-          Add Wireflow
-        </button>
+    <div className="flex flex-col gap-6 p-6">
+      {/* Step Indicator */}
+      <div className="flex justify-center mb-4">
+        <div className="flex space-x-4">
+          <div
+            className={`px-4 py-2 rounded-full ${
+              step === 1
+                ? "bg-blue-500 text-white"
+                : "bg-gray-200 text-gray-700"
+            }`}
+          >
+            1. Details
+          </div>
+          <div
+            className={`px-4 py-2 rounded-full ${
+              step === 2
+                ? "bg-blue-500 text-white"
+                : "bg-gray-200 text-gray-700"
+            }`}
+          >
+            2. Wires
+          </div>
+          <div
+            className={`px-4 py-2 rounded-full ${
+              step === 3
+                ? "bg-blue-500 text-white"
+                : "bg-gray-200 text-gray-700"
+            }`}
+          >
+            3. Review
+          </div>
+        </div>
       </div>
 
-      {isLoading && (
-        <div className="flex items-center justify-center h-64">
-          <LoadingSpinner />
-          <p className="ml-2 text-gray-700">Loading wireflows...</p>
-        </div>
-      )}
-
-      {error && (
-        <div className="px-4 py-3 mb-4 text-red-700 bg-red-100 border border-red-400 rounded">
-          <p>Error: {error}</p>
+      {step === 1 && (
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Wireflow Details</h3>
+          <div>
+            <label className="block text-sm text-gray-600">Wireflow ID:</label>
+            <input
+              type="text"
+              value={wireflowId}
+              onChange={(e) => setWireflowId(e.target.value)}
+              className="w-full p-2 border rounded"
+              placeholder="Enter Wireflow ID"
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-gray-600">Description:</label>
+            <input
+              type="text"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full p-2 border rounded"
+              placeholder="Enter Description"
+            />
+          </div>
           <button
-            onClick={fetchWireflows}
-            className="px-3 py-1 mt-2 text-white transition duration-300 bg-red-600 rounded hover:bg-red-700"
+            onClick={handleNextStep}
+            className="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600"
           >
-            Retry
+            Next
           </button>
         </div>
       )}
 
-      {/* Modal for adding/editing wireflows */}
-      <Modal isOpen={isModalOpen} onClose={closeModal} isLoading={isSaving}>
-        {isSaving ? (
-          <div className="flex items-center justify-center h-32">
-            <LoadingSpinner />
-            <p className="ml-2 text-gray-700">Saving wireflow...</p>
-          </div>
-        ) : (
-          <WireflowBuilder
-            wires={wires}
-            onSave={handleSaveWireflow}
-            initialWireflow={editingWireflow?.wires}
-          />
-        )}
-      </Modal>
-
-      {/* Modal for execution results */}
-      <Modal
-        isOpen={isExecutionModalOpen}
-        onClose={closeExecutionModal}
-        isLoading={isExecuting}
-      >
-        {executionResult ? (
-          <>
-            <h2 className="mb-4 text-xl font-bold text-blue-800">
-              Execution Result
-            </h2>
-            <div className="p-4 overflow-y-auto bg-gray-100 rounded-lg max-h-40">
-              <pre>{executionResult.final_output}</pre>
-            </div>
-          </>
-        ) : (
-          <p className="text-gray-700">No execution result available.</p>
-        )}
-      </Modal>
-
-      {!isLoading && !error && (
-        <div className="overflow-x-auto">
-          <table className="min-w-full bg-white rounded-lg shadow-md">
-            <thead>
-              <tr className="bg-blue-50">
-                <th className="px-4 py-2 text-left text-blue-800">
-                  Wireflow ID
-                </th>
-                <th className="px-4 py-2 text-left text-blue-800">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {wireflows.map((wireflow) => (
-                <tr
-                  key={wireflow.wireflow_id}
-                  className="border-b hover:bg-gray-50"
+      {step === 2 && (
+        <DragDropContext onDragEnd={onDragEnd}>
+          <div className="flex flex-col gap-6 md:flex-row">
+            {/* Available Wires */}
+            <Droppable droppableId="wires">
+              {(provided) => (
+                <div
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                  className="w-full p-4 bg-gray-100 rounded-lg shadow-md md:w-64"
                 >
-                  <td className="px-4 py-2 text-gray-700">
-                    {wireflow.wireflow_id}
-                  </td>
-                  <td className="px-4 py-2">
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() =>
-                          handleExecuteWireflow(wireflow.wireflow_id)
-                        }
-                        className="p-1 text-green-600 transition-colors duration-300 rounded-full hover:text-green-800 hover:bg-green-50"
+                  <h3 className="mb-4 text-lg font-semibold">
+                    Available Wires
+                  </h3>
+                  <ul className="space-y-2">
+                    {wires.map((wire, index) => (
+                      <Draggable
+                        key={wire.wire_id}
+                        draggableId={wire.wire_id}
+                        index={index}
                       >
-                        <FaPlay className="w-5 h-5" />
-                      </button>
-                      <button
-                        onClick={() => openModal(wireflow)}
-                        className="p-1 text-yellow-600 transition-colors duration-300 rounded-full hover:text-yellow-800 hover:bg-yellow-50"
+                        {(provided) => (
+                          <li
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            className="p-3 transition-shadow duration-300 bg-white rounded-lg shadow-sm cursor-move hover:shadow-md"
+                          >
+                            <h4 className="font-semibold text-blue-800 text-md">
+                              {wire.wire_id}
+                            </h4>
+                            <p className="text-sm text-gray-600">
+                              {wire.description}
+                            </p>
+                          </li>
+                        )}
+                      </Draggable>
+                    ))}
+                  </ul>
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+
+            {/* Wireflow Canvas */}
+            <Droppable droppableId="wireflow">
+              {(provided) => (
+                <div
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                  className="flex-1 p-4 bg-gray-100 rounded-lg shadow-md"
+                >
+                  <h3 className="mb-4 text-lg font-semibold">Wireflow</h3>
+                  <ul className="space-y-2">
+                    {wireflow.map((wire, index) => (
+                      <Draggable
+                        key={wire.wire_id}
+                        draggableId={wire.wire_id}
+                        index={index}
                       >
-                        <FaEdit className="w-5 h-5" />
-                      </button>
-                      <button
-                        onClick={() =>
-                          handleDeleteWireflow(wireflow.wireflow_id)
-                        }
-                        className="p-1 text-red-600 transition-colors duration-300 rounded-full hover:text-red-800 hover:bg-red-50"
-                      >
-                        <FaTrash className="w-5 h-5" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+                        {(provided) => (
+                          <li
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            className="flex items-center justify-between p-3 transition-shadow duration-300 bg-white rounded-lg shadow-sm hover:shadow-md"
+                          >
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-blue-800 text-md">
+                                {wire.wire_id}
+                              </h4>
+                              <div className="mt-2">
+                                <label className="block text-sm text-gray-600">
+                                  Inputs:
+                                </label>
+                                {Object.keys(wire.inputs || {}).map(
+                                  (inputKey) => (
+                                    <div key={inputKey} className="mt-1">
+                                      <label className="block text-sm text-gray-600">
+                                        {inputKey}:
+                                      </label>
+                                      <input
+                                        type="text"
+                                        value={wire.inputs[inputKey]}
+                                        onChange={(e) =>
+                                          updateWireInput(
+                                            index,
+                                            inputKey,
+                                            e.target.value
+                                          )
+                                        }
+                                        className="w-full p-1 border rounded"
+                                      />
+                                    </div>
+                                  )
+                                )}
+                              </div>
+                              <div className="mt-2">
+                                <label className="block text-sm text-gray-600">
+                                  Output Key:
+                                </label>
+                                <p className="text-sm text-gray-800">
+                                  {wire.output_key}
+                                </p>
+                              </div>
+                            </div>
+                            <button
+                              onClick={() => removeWireFromWireflow(index)}
+                              className="p-1 text-red-600 transition-colors duration-300 rounded-full hover:text-red-800 hover:bg-red-50"
+                            >
+                              <FaTimes className="w-5 h-5" />
+                            </button>
+                          </li>
+                        )}
+                      </Draggable>
+                    ))}
+                  </ul>
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </div>
+          <div className="flex justify-between mt-4">
+            <button
+              onClick={handlePreviousStep}
+              className="px-4 py-2 text-white bg-gray-500 rounded-lg hover:bg-gray-600"
+            >
+              Previous
+            </button>
+            <button
+              onClick={handleNextStep}
+              className="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600"
+            >
+              Next
+            </button>
+          </div>
+        </DragDropContext>
+      )}
+
+      {step === 3 && (
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Review Wireflow</h3>
+          <div className="p-4 bg-gray-100 rounded-lg">
+            <h4 className="font-semibold text-blue-800">Wireflow ID:</h4>
+            <p className="text-gray-700">{wireflowId}</p>
+            <h4 className="mt-2 font-semibold text-blue-800">Description:</h4>
+            <p className="text-gray-700">{description}</p>
+            <h4 className="mt-2 font-semibold text-blue-800">Wires:</h4>
+            <ul className="space-y-2">
+              {wireflow.map((wire, index) => (
+                <li key={index} className="p-2 bg-white rounded-lg shadow-sm">
+                  <p className="text-gray-700">{wire.wire_id}</p>
+                </li>
               ))}
-            </tbody>
-          </table>
+            </ul>
+          </div>
+          <div className="flex justify-between mt-4">
+            <button
+              onClick={handlePreviousStep}
+              className="px-4 py-2 text-white bg-gray-500 rounded-lg hover:bg-gray-600"
+            >
+              Previous
+            </button>
+            <button
+              onClick={() =>
+                onSave({ wireflowId, description, wires: wireflow })
+              }
+              className="px-4 py-2 text-white bg-green-500 rounded-lg hover:bg-green-600"
+            >
+              Save Wireflow
+            </button>
+          </div>
         </div>
       )}
     </div>
   );
 };
 
-export default WireflowsPage;
+export default WireflowBuilder;
