@@ -4,6 +4,7 @@ import { FaTimes } from "react-icons/fa";
 
 const WireflowBuilder = ({ wires, onSave, initialWireflow }) => {
   const [wireflow, setWireflow] = useState(initialWireflow || []);
+  const [step, setStep] = useState(1); // Multi-step form state
 
   const onDragEnd = (result) => {
     const { source, destination } = result;
@@ -45,132 +46,249 @@ const WireflowBuilder = ({ wires, onSave, initialWireflow }) => {
     setWireflow(newWireflow);
   };
 
+  const handleNextStep = () => {
+    setStep(step + 1);
+  };
+
+  const handlePreviousStep = () => {
+    setStep(step - 1);
+  };
+
   return (
-    <div className="flex flex-col gap-6 p-6 md:flex-row">
-      <DragDropContext onDragEnd={onDragEnd}>
-        {/* Available Wires */}
-        <Droppable droppableId="wires">
-          {(provided) => (
-            <div
-              ref={provided.innerRef}
-              {...provided.droppableProps}
-              className="w-full p-4 bg-gray-100 rounded-lg shadow-md md:w-64"
-            >
-              <h3 className="mb-4 text-lg font-semibold">Available Wires</h3>
-              <ul className="space-y-2">
-                {wires.map((wire, index) => (
-                  <Draggable
-                    key={wire.wire_id}
-                    draggableId={wire.wire_id}
-                    index={index}
-                  >
-                    {(provided) => (
-                      <li
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                        className="p-3 transition-shadow duration-300 bg-white rounded-lg shadow-sm cursor-move hover:shadow-md"
-                      >
-                        <h4 className="font-semibold text-blue-800 text-md">
-                          {wire.wire_id}
-                        </h4>
-                        <p className="text-sm text-gray-600">
-                          {wire.description}
-                        </p>
-                      </li>
-                    )}
-                  </Draggable>
-                ))}
-              </ul>
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
+    <div className="flex flex-col gap-6 p-6">
+      {/* Step Indicator */}
+      <div className="flex justify-center mb-4">
+        <div className="flex space-x-4">
+          <div
+            className={`px-4 py-2 rounded-full ${
+              step === 1
+                ? "bg-blue-500 text-white"
+                : "bg-gray-200 text-gray-700"
+            }`}
+          >
+            1. Details
+          </div>
+          <div
+            className={`px-4 py-2 rounded-full ${
+              step === 2
+                ? "bg-blue-500 text-white"
+                : "bg-gray-200 text-gray-700"
+            }`}
+          >
+            2. Wires
+          </div>
+          <div
+            className={`px-4 py-2 rounded-full ${
+              step === 3
+                ? "bg-blue-500 text-white"
+                : "bg-gray-200 text-gray-700"
+            }`}
+          >
+            3. Review
+          </div>
+        </div>
+      </div>
 
-        {/* Wireflow Canvas */}
-        <Droppable droppableId="wireflow">
-          {(provided) => (
-            <div
-              ref={provided.innerRef}
-              {...provided.droppableProps}
-              className="flex-1 p-4 bg-gray-100 rounded-lg shadow-md"
-            >
-              <h3 className="mb-4 text-lg font-semibold">Wireflow</h3>
-              <ul className="space-y-2">
-                {wireflow.map((wire, index) => (
-                  <Draggable
-                    key={wire.wire_id}
-                    draggableId={wire.wire_id}
-                    index={index}
-                  >
-                    {(provided) => (
-                      <li
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                        className="flex items-center justify-between p-3 transition-shadow duration-300 bg-white rounded-lg shadow-sm hover:shadow-md"
+      {step === 1 && (
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Wireflow Details</h3>
+          <div>
+            <label className="block text-sm text-gray-600">Wireflow ID:</label>
+            <input
+              type="text"
+              className="w-full p-2 border rounded"
+              placeholder="Enter Wireflow ID"
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-gray-600">Description:</label>
+            <input
+              type="text"
+              className="w-full p-2 border rounded"
+              placeholder="Enter Description"
+            />
+          </div>
+          <button
+            onClick={handleNextStep}
+            className="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600"
+          >
+            Next
+          </button>
+        </div>
+      )}
+
+      {step === 2 && (
+        <DragDropContext onDragEnd={onDragEnd}>
+          <div className="flex flex-col gap-6 md:flex-row">
+            {/* Available Wires */}
+            <Droppable droppableId="wires">
+              {(provided) => (
+                <div
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                  className="w-full p-4 bg-gray-100 rounded-lg shadow-md md:w-64"
+                >
+                  <h3 className="mb-4 text-lg font-semibold">
+                    Available Wires
+                  </h3>
+                  <ul className="space-y-2">
+                    {wires.map((wire, index) => (
+                      <Draggable
+                        key={wire.wire_id}
+                        draggableId={wire.wire_id}
+                        index={index}
                       >
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-blue-800 text-md">
-                            {wire.wire_id}
-                          </h4>
-                          <div className="mt-2">
-                            <label className="block text-sm text-gray-600">
-                              Inputs:
-                            </label>
-                            {Object.keys(wire.inputs || {}).map((inputKey) => (
-                              <div key={inputKey} className="mt-1">
-                                <label className="block text-sm text-gray-600">
-                                  {inputKey}:
-                                </label>
-                                <input
-                                  type="text"
-                                  value={wire.inputs[inputKey]}
-                                  onChange={(e) =>
-                                    updateWireInput(
-                                      index,
-                                      inputKey,
-                                      e.target.value
-                                    )
-                                  }
-                                  className="w-full p-1 border rounded"
-                                />
-                              </div>
-                            ))}
-                          </div>
-                          <div className="mt-2">
-                            <label className="block text-sm text-gray-600">
-                              Output Key:
-                            </label>
-                            <p className="text-sm text-gray-800">
-                              {wire.output_key}
+                        {(provided) => (
+                          <li
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            className="p-3 transition-shadow duration-300 bg-white rounded-lg shadow-sm cursor-move hover:shadow-md"
+                          >
+                            <h4 className="font-semibold text-blue-800 text-md">
+                              {wire.wire_id}
+                            </h4>
+                            <p className="text-sm text-gray-600">
+                              {wire.description}
                             </p>
-                          </div>
-                        </div>
-                        <button
-                          onClick={() => removeWireFromWireflow(index)}
-                          className="p-1 text-red-600 transition-colors duration-300 rounded-full hover:text-red-800 hover:bg-red-50"
-                        >
-                          <FaTimes className="w-5 h-5" />
-                        </button>
-                      </li>
-                    )}
-                  </Draggable>
-                ))}
-              </ul>
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
-      </DragDropContext>
+                          </li>
+                        )}
+                      </Draggable>
+                    ))}
+                  </ul>
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
 
-      {/* Save Button */}
-      <button
-        onClick={() => onSave(wireflow)}
-        className="px-4 py-2 mt-4 text-white transition duration-300 bg-green-500 rounded-lg hover:bg-green-600"
-      >
-        Save Wireflow
-      </button>
+            {/* Wireflow Canvas */}
+            <Droppable droppableId="wireflow">
+              {(provided) => (
+                <div
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                  className="flex-1 p-4 bg-gray-100 rounded-lg shadow-md"
+                >
+                  <h3 className="mb-4 text-lg font-semibold">Wireflow</h3>
+                  <ul className="space-y-2">
+                    {wireflow.map((wire, index) => (
+                      <Draggable
+                        key={wire.wire_id}
+                        draggableId={wire.wire_id}
+                        index={index}
+                      >
+                        {(provided) => (
+                          <li
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            className="flex items-center justify-between p-3 transition-shadow duration-300 bg-white rounded-lg shadow-sm hover:shadow-md"
+                          >
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-blue-800 text-md">
+                                {wire.wire_id}
+                              </h4>
+                              <div className="mt-2">
+                                <label className="block text-sm text-gray-600">
+                                  Inputs:
+                                </label>
+                                {Object.keys(wire.inputs || {}).map(
+                                  (inputKey) => (
+                                    <div key={inputKey} className="mt-1">
+                                      <label className="block text-sm text-gray-600">
+                                        {inputKey}:
+                                      </label>
+                                      <input
+                                        type="text"
+                                        value={wire.inputs[inputKey]}
+                                        onChange={(e) =>
+                                          updateWireInput(
+                                            index,
+                                            inputKey,
+                                            e.target.value
+                                          )
+                                        }
+                                        className="w-full p-1 border rounded"
+                                      />
+                                    </div>
+                                  )
+                                )}
+                              </div>
+                              <div className="mt-2">
+                                <label className="block text-sm text-gray-600">
+                                  Output Key:
+                                </label>
+                                <p className="text-sm text-gray-800">
+                                  {wire.output_key}
+                                </p>
+                              </div>
+                            </div>
+                            <button
+                              onClick={() => removeWireFromWireflow(index)}
+                              className="p-1 text-red-600 transition-colors duration-300 rounded-full hover:text-red-800 hover:bg-red-50"
+                            >
+                              <FaTimes className="w-5 h-5" />
+                            </button>
+                          </li>
+                        )}
+                      </Draggable>
+                    ))}
+                  </ul>
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </div>
+          <div className="flex justify-between mt-4">
+            <button
+              onClick={handlePreviousStep}
+              className="px-4 py-2 text-white bg-gray-500 rounded-lg hover:bg-gray-600"
+            >
+              Previous
+            </button>
+            <button
+              onClick={handleNextStep}
+              className="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600"
+            >
+              Next
+            </button>
+          </div>
+        </DragDropContext>
+      )}
+
+      {step === 3 && (
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Review Wireflow</h3>
+          <div className="p-4 bg-gray-100 rounded-lg">
+            <h4 className="font-semibold text-blue-800">Wireflow ID:</h4>
+            <p className="text-gray-700">[Wireflow ID]</p>
+            <h4 className="mt-2 font-semibold text-blue-800">Description:</h4>
+            <p className="text-gray-700">[Description]</p>
+            <h4 className="mt-2 font-semibold text-blue-800">Wires:</h4>
+            <ul className="space-y-2">
+              {wireflow.map((wire, index) => (
+                <li key={index} className="p-2 bg-white rounded-lg shadow-sm">
+                  <p className="text-gray-700">{wire.wire_id}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="flex justify-between mt-4">
+            <button
+              onClick={handlePreviousStep}
+              className="px-4 py-2 text-white bg-gray-500 rounded-lg hover:bg-gray-600"
+            >
+              Previous
+            </button>
+            <button
+              onClick={() => onSave(wireflow)}
+              className="px-4 py-2 text-white bg-green-500 rounded-lg hover:bg-green-600"
+            >
+              Save Wireflow
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
