@@ -5,6 +5,8 @@ import { FaTimes } from "react-icons/fa";
 const WireflowBuilder = ({ wires, onSave, initialWireflow }) => {
   const [wireflow, setWireflow] = useState(initialWireflow || []);
   const [step, setStep] = useState(1); // Multi-step form state
+  const [wireflowId, setWireflowId] = useState(""); // State for wireflow ID
+  const [description, setDescription] = useState(""); // State for description
 
   const onDragEnd = (result) => {
     const { source, destination } = result;
@@ -96,6 +98,8 @@ const WireflowBuilder = ({ wires, onSave, initialWireflow }) => {
             <label className="block text-sm text-gray-600">Wireflow ID:</label>
             <input
               type="text"
+              value={wireflowId}
+              onChange={(e) => setWireflowId(e.target.value)}
               className="w-full p-2 border rounded"
               placeholder="Enter Wireflow ID"
             />
@@ -104,6 +108,8 @@ const WireflowBuilder = ({ wires, onSave, initialWireflow }) => {
             <label className="block text-sm text-gray-600">Description:</label>
             <input
               type="text"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
               className="w-full p-2 border rounded"
               placeholder="Enter Description"
             />
@@ -261,9 +267,9 @@ const WireflowBuilder = ({ wires, onSave, initialWireflow }) => {
           <h3 className="text-lg font-semibold">Review Wireflow</h3>
           <div className="p-4 bg-gray-100 rounded-lg">
             <h4 className="font-semibold text-blue-800">Wireflow ID:</h4>
-            <p className="text-gray-700">[Wireflow ID]</p>
+            <p className="text-gray-700">{wireflowId}</p>
             <h4 className="mt-2 font-semibold text-blue-800">Description:</h4>
-            <p className="text-gray-700">[Description]</p>
+            <p className="text-gray-700">{description}</p>
             <h4 className="mt-2 font-semibold text-blue-800">Wires:</h4>
             <ul className="space-y-2">
               {wireflow.map((wire, index) => (
@@ -281,7 +287,9 @@ const WireflowBuilder = ({ wires, onSave, initialWireflow }) => {
               Previous
             </button>
             <button
-              onClick={() => onSave(wireflow)}
+              onClick={() =>
+                onSave({ wireflowId, description, wires: wireflow })
+              }
               className="px-4 py-2 text-white bg-green-500 rounded-lg hover:bg-green-600"
             >
               Save Wireflow
