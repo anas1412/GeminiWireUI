@@ -53,25 +53,20 @@ const WireflowsPage = () => {
     fetchWireflows();
   }, []);
 
-  const handleSaveWireflow = async (wireflow) => {
+  const handleSaveWireflow = async (wireflowData) => {
     try {
-      const wireflow_id = editingWireflow
-        ? editingWireflow.wireflow_id
-        : prompt("Enter a unique ID for this wireflow:");
-      const description = editingWireflow
-        ? editingWireflow.description
-        : prompt("Enter a description for this wireflow:");
+      const { wireflowId, description, wires } = wireflowData;
 
-      if (wireflow_id && description) {
+      if (wireflowId && description) {
         const method = editingWireflow ? "PUT" : "POST";
         const url = editingWireflow
-          ? `${API_BASE_URL}/wireflows/${wireflow_id}`
+          ? `${API_BASE_URL}/wireflows/${wireflowId}`
           : `${API_BASE_URL}/wireflows/`;
 
-        const wireflowData = {
-          wireflow_id: wireflow_id,
+        const wireflowPayload = {
+          wireflow_id: wireflowId,
           description: description,
-          wires: wireflow.map((wire) => ({
+          wires: wires.map((wire) => ({
             wire_id: wire.wire_id,
             inputs: wire.inputs,
             output_key: wire.output_key,
@@ -81,7 +76,7 @@ const WireflowsPage = () => {
         const response = await fetch(url, {
           method,
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(wireflowData),
+          body: JSON.stringify(wireflowPayload),
         });
 
         if (!response.ok) throw new Error("Failed to save wireflow");
