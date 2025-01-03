@@ -11,12 +11,11 @@ const WireflowsPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [editingWireflow, setEditingWireflow] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false); // State for edit/add modal
-  const [isExecutionModalOpen, setIsExecutionModalOpen] = useState(false); // State for execution modal
-  const [executionResult, setExecutionResult] = useState(null); // State for execution result
-  const [isExecuting, setIsExecuting] = useState(false); // State for execution loading
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isExecutionModalOpen, setIsExecutionModalOpen] = useState(false);
+  const [executionResult, setExecutionResult] = useState(null);
+  const [isExecuting, setIsExecuting] = useState(false);
 
-  // Fetch available wires
   const fetchWires = async () => {
     setIsLoading(true);
     setError(null);
@@ -33,7 +32,6 @@ const WireflowsPage = () => {
     }
   };
 
-  // Fetch all wireflows
   const fetchWireflows = async () => {
     setIsLoading(true);
     setError(null);
@@ -55,7 +53,6 @@ const WireflowsPage = () => {
     fetchWireflows();
   }, []);
 
-  // Save or update a wireflow
   const handleSaveWireflow = async (wireflow) => {
     try {
       const wireflow_id = editingWireflow
@@ -88,9 +85,9 @@ const WireflowsPage = () => {
         });
 
         if (!response.ok) throw new Error("Failed to save wireflow");
-        fetchWireflows(); // Refresh the list of wireflows
-        setEditingWireflow(null); // Reset editing state
-        setIsModalOpen(false); // Close the modal
+        fetchWireflows();
+        setEditingWireflow(null);
+        setIsModalOpen(false);
       }
     } catch (error) {
       console.error("Error saving wireflow:", error);
@@ -98,25 +95,23 @@ const WireflowsPage = () => {
     }
   };
 
-  // Delete a wireflow
   const handleDeleteWireflow = async (wireflow_id) => {
     try {
       const response = await fetch(`${API_BASE_URL}/wireflows/${wireflow_id}`, {
         method: "DELETE",
       });
       if (!response.ok) throw new Error("Failed to delete wireflow");
-      fetchWireflows(); // Refresh the list of wireflows
+      fetchWireflows();
     } catch (error) {
       console.error("Error deleting wireflow:", error);
       setError("Failed to delete wireflow. Please try again.");
     }
   };
 
-  // Execute a wireflow
   const handleExecuteWireflow = async (wireflow_id) => {
-    setIsExecuting(true); // Start loading
-    setIsExecutionModalOpen(true); // Open the execution modal
-    setExecutionResult(null); // Reset previous results
+    setIsExecuting(true);
+    setIsExecutionModalOpen(true);
+    setExecutionResult(null);
 
     try {
       const response = await fetch(`${API_BASE_URL}/wireflows/execute`, {
@@ -124,34 +119,31 @@ const WireflowsPage = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           wireflow_id: wireflow_id,
-          inputs: {}, // Add inputs if needed
+          inputs: {},
         }),
       });
 
       if (!response.ok) throw new Error("Failed to execute wireflow");
       const result = await response.json();
-      setExecutionResult(result); // Set the execution result
+      setExecutionResult(result);
     } catch (error) {
       console.error("Error executing wireflow:", error);
       setError("Failed to execute wireflow. Please try again.");
     } finally {
-      setIsExecuting(false); // Stop loading
+      setIsExecuting(false);
     }
   };
 
-  // Open modal for editing or adding a wireflow
   const openModal = (wireflow = null) => {
     setEditingWireflow(wireflow);
     setIsModalOpen(true);
   };
 
-  // Close modal
   const closeModal = () => {
     setEditingWireflow(null);
     setIsModalOpen(false);
   };
 
-  // Close execution modal
   const closeExecutionModal = () => {
     setExecutionResult(null);
     setIsExecutionModalOpen(false);
@@ -164,7 +156,7 @@ const WireflowsPage = () => {
           Wireflows
         </h1>
         <button
-          onClick={() => openModal()} // Open modal for adding a new wireflow
+          onClick={() => openModal()}
           className="flex items-center px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600"
         >
           <FaPlus className="mr-2" />
@@ -191,7 +183,6 @@ const WireflowsPage = () => {
         </div>
       )}
 
-      {/* Modal for adding/editing wireflows */}
       <Modal isOpen={isModalOpen} onClose={closeModal}>
         <WireflowBuilder
           wires={wires}
@@ -200,7 +191,6 @@ const WireflowsPage = () => {
         />
       </Modal>
 
-      {/* Modal for execution results */}
       <Modal
         isOpen={isExecutionModalOpen}
         onClose={closeExecutionModal}
@@ -251,7 +241,7 @@ const WireflowsPage = () => {
                         <FaPlay className="w-5 h-5" />
                       </button>
                       <button
-                        onClick={() => openModal(wireflow)} // Open modal for editing
+                        onClick={() => openModal(wireflow)}
                         className="p-1 text-yellow-600 transition-colors duration-300 rounded-full hover:text-yellow-800 hover:bg-yellow-50"
                       >
                         <FaEdit className="w-5 h-5" />
