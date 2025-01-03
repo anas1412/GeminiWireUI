@@ -59,14 +59,21 @@ const WireflowsPage = () => {
     try {
       const { wireflowId, description, wires } = wireflowData;
 
+      console.log("Saving wireflow with data:", {
+        wireflowId,
+        description,
+        wires,
+        editingWireflow,
+      });
+
       if (wireflowId && description) {
         const method = editingWireflow ? "PUT" : "POST";
         const url = editingWireflow
-          ? `${API_BASE_URL}/wireflows/${wireflowId}`
+          ? `${API_BASE_URL}/wireflows/${editingWireflow.wireflow_id}` // Use the existing wireflow ID for editing
           : `${API_BASE_URL}/wireflows/`;
 
         const wireflowPayload = {
-          wireflow_id: wireflowId,
+          wireflow_id: wireflowId, // Use the new wireflow ID for creation
           description: description,
           wires: wires.map((wire) => ({
             wire_id: wire.wire_id,
@@ -74,6 +81,8 @@ const WireflowsPage = () => {
             output_key: wire.output_key,
           })),
         };
+
+        console.log("Sending payload:", wireflowPayload);
 
         const response = await fetch(url, {
           method,
@@ -194,6 +203,8 @@ const WireflowsPage = () => {
             wires={wires}
             onSave={handleSaveWireflow}
             initialWireflow={editingWireflow?.wires}
+            initialWireflowId={editingWireflow?.wireflow_id} // Pass existing wireflow ID
+            initialDescription={editingWireflow?.description} // Pass existing description
           />
         )}
       </Modal>
