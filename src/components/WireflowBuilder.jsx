@@ -25,7 +25,8 @@ const WireflowBuilder = ({
     ) {
       const wire = wires.find((w) => w.wire_id === result.draggableId);
       const inputs = Object.keys(wire.inputs || {}).reduce((acc, key) => {
-        acc[key] = ""; // Initialize each input with an empty string
+        // Initialize each input with the default value from the wire's inputs
+        acc[key] = wire.inputs[key]; // Use the default value from the wire's inputs
         return acc;
       }, {});
       setWireflow([
@@ -220,9 +221,7 @@ const WireflowBuilder = ({
                                             e.target.value
                                           )
                                         }
-                                        placeholder={
-                                          wire.inputs[inputKey] || ""
-                                        } // Use the default value as placeholder
+                                        placeholder={wire.inputs[inputKey]} // Use the default value as placeholder
                                         className="w-full p-1 border rounded"
                                       />
                                     </div>
