@@ -15,6 +15,7 @@ const WireflowsPage = () => {
   const [isExecutionModalOpen, setIsExecutionModalOpen] = useState(false);
   const [executionResult, setExecutionResult] = useState(null);
   const [isExecuting, setIsExecuting] = useState(false);
+  const [isSaving, setIsSaving] = useState(false); // New state for saving
 
   const fetchWires = async () => {
     setIsLoading(true);
@@ -54,6 +55,7 @@ const WireflowsPage = () => {
   }, []);
 
   const handleSaveWireflow = async (wireflowData) => {
+    setIsSaving(true); // Start loading spinner
     try {
       const { wireflowId, description, wires } = wireflowData;
 
@@ -80,13 +82,15 @@ const WireflowsPage = () => {
         });
 
         if (!response.ok) throw new Error("Failed to save wireflow");
-        fetchWireflows();
-        setEditingWireflow(null);
-        setIsModalOpen(false);
+        fetchWireflows(); // Refresh the list of wireflows
+        setEditingWireflow(null); // Reset editing state
+        setIsModalOpen(false); // Close the modal
       }
     } catch (error) {
       console.error("Error saving wireflow:", error);
       setError("Failed to save wireflow. Please try again.");
+    } finally {
+      setIsSaving(false); // Stop loading spinner
     }
   };
 
@@ -178,14 +182,23 @@ const WireflowsPage = () => {
         </div>
       )}
 
-      <Modal isOpen={isModalOpen} onClose={closeModal}>
-        <WireflowBuilder
-          wires={wires}
-          onSave={handleSaveWireflow}
-          initialWireflow={editingWireflow?.wires}
-        />
+      {/* Modal for adding/editing wireflows */}
+      <Modal isOpen={isModalOpen} onClose={closeModal} isLoading={isSaving}>
+        {isSaving ? (
+          <div className="flex items-center justify-center h-32">
+            <LoadingSpinner />
+            <p className="ml-2 text-gray-700">Saving wireflow...</p>
+          </div>
+        ) : (
+          <WireflowBuilder
+            wires={wires}
+            onSave={handleSaveWireflow}
+            initialWireflow={editingWireflow?.wires}
+          />
+        )}
       </Modal>
 
+      {/* Modal for execution results */}
       <Modal
         isOpen={isExecutionModalOpen}
         onClose={closeExecutionModal}
