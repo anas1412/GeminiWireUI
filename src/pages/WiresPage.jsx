@@ -126,9 +126,10 @@ const WiresPage = () => {
         <h1 className="mb-4 text-2xl font-bold text-blue-800 md:mb-0">Wires</h1>
         <button
           onClick={handleCreateWire}
-          className="w-full px-4 py-2 text-white transition duration-300 bg-blue-600 rounded-lg hover:bg-blue-700 md:w-auto"
+          className="flex items-center px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600"
         >
-          Create Wire
+          <FaPlus className="mr-2" />
+          Add Wire
         </button>
       </div>
 
